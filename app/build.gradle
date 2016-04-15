@@ -1,0 +1,74 @@
+apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion '23.0.2'//'24 rc2'
+
+    defaultConfig {
+        applicationId "xyz.zyten.rdmon"
+        minSdkVersion 15
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+    }
+
+    signingConfigs {
+        release {
+            storeFile file("realtime-dmon.keystore")
+            storePassword "android"
+            keyAlias "realtime-dmon"
+            keyPassword "android"
+        }
+        config {
+            keyAlias 'realtime-dmon'
+            keyPassword 'android'
+            storeFile file('C:/Users/zyten/Dropbox/Source/AndroidStudioProjects/psm/rdmon/realtime-dmon.jks')
+            storePassword 'android'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
+        }
+    }
+
+    productFlavors {
+        phone {
+            applicationId
+            "xyz.zyten.rdmon.phone"
+            versionName "1.0-phone"
+        }
+        tablet {
+            applicationId
+            "xyz.zyten.rdmon.tablet"
+            versionName "1.0-tablet"
+        }
+    }
+
+    packagingOptions {
+        exclude 'LICENSE.txt'
+    }
+}
+
+repositories {
+    maven { url "https://jitpack.io" }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    // testCompile 'junit:junit:4.12'
+    compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'com.android.support:design:23.1.1'
+    // Dependency for Google Sign-In
+    compile 'com.google.android.gms:play-services-auth:8.3.0'
+    compile 'com.google.android.gms:play-services-plus:8.3.0'
+    compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'de.hdodenhof:circleimageview:2.0.0'
+    compile 'com.android.support:support-v4:23.1.1'
+    compile 'com.github.PhilJay:MPAndroidChart:v2.1.6'
+    compile 'com.macroyau:thingspeakandroid:0.2.0'
+}

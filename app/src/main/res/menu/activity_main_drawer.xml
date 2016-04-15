@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group
+        android:id="@+id/menu_nav"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_profile"
+            android:icon="@android:drawable/ic_menu_camera"
+            android:title="Update Profile" />
+        <item
+            android:id="@+id/nav_history"
+            android:icon="@android:drawable/ic_menu_gallery"
+            android:title="Historical Data" />
+        <item
+            android:id="@+id/nav_air"
+            android:icon="@android:drawable/ic_menu_slideshow"
+            android:title="Air Quality" />
+    </group>
+
+    <group
+        android:id="@+id/menu_comm"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_share"
+            android:icon="@android:drawable/ic_menu_share"
+            android:title="Share" />
+        <item
+            android:id="@+id/nav_about"
+            android:icon="@android:drawable/ic_menu_send"
+            android:title="About Us" />
+    </group>
+
+    <group
+        android:id="@+id/menu_exit"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_signout"
+            android:icon="@drawable/logout"
+            android:title="Signout From G+ "/>
+    </group>
+
+</menu>
