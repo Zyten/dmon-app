@@ -1,8 +1,10 @@
 package xyz.zyten.rdmon;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -62,9 +64,7 @@ public class MainActivity extends AppCompatActivity
                 .build();
     }
 
-    public void sendStream(View v){
-        new getStreamAsyncTask().execute();
-    }
+    //public void sendStream(View v){new getStreamAsyncTask().execute();}
 
     @Override
     public void onStart() {
@@ -107,9 +107,9 @@ public class MainActivity extends AppCompatActivity
             profile.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             MainActivity.this.startActivity(profile);
         } else if (id == R.id.nav_history) {
-            Intent history = new Intent(MainActivity.this, HistoryActivity.class);
+            /*Intent history = new Intent(MainActivity.this, HistoryActivity.class);
             history.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            MainActivity.this.startActivity(history);
+            MainActivity.this.startActivity(history);*/
         } else if (id == R.id.nav_air) {
 
         } else if (id == R.id.nav_share) {
@@ -120,6 +120,10 @@ public class MainActivity extends AppCompatActivity
             if (mGoogleApiClient.isConnected()) {
                 Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
                 mGoogleApiClient.disconnect();
+                SharedPreferences settemppref = getSharedPreferences(LoginActivity.TEMP, Context.MODE_PRIVATE);
+                SharedPreferences.Editor tempEditor = settemppref.edit();
+                tempEditor.putBoolean("logged_in", false);
+                tempEditor.commit();
                 //mGoogleApiClient.connect();  //may not be needed*/
                 }
 
@@ -183,7 +187,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private class getStreamAsyncTask extends AsyncTask<String, Void, String> {
+   /*private class getStreamAsyncTask extends AsyncTask<String, Void, String> {
 
         protected String doInBackground(String... params) {
             return sendData();
@@ -233,7 +237,7 @@ public class MainActivity extends AppCompatActivity
             //show the message returned from Carriots to the user
             Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG).show();
         }
-    }
+    }*/
 }
 
 

@@ -27,15 +27,10 @@ import java.util.Locale;
 
 public class ProfileActivity extends AppCompatActivity{
 
-    //debug
-    //private TextView idBirthdayTextView, genderTextView, emailTextView, personNameTextView;
     private TextView accountIdTextView;
-
     private EditText usernameEditText, birthdayEditText, hometownEditText, currResidenceEditText;
-
     private RadioGroup radioSexGroup;
     private RadioButton rbMale, rbFemale;
-
     private String genderVal, birthdayVal;
 
     @Override
@@ -43,55 +38,45 @@ public class ProfileActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-        String accountId = "";
+        String googleID = "";
         String username = "";
-        String email = "";
         String sGender = "";
         String birthday = "";
+        String hometown = "";
+        String currResidence = "";
 
         SharedPreferences gettemppref = getSharedPreferences("temp", Context.MODE_PRIVATE);
-
-        Boolean newUser =  gettemppref.getBoolean("GProfile", false);
-
-        boolean logged_in = gettemppref.getBoolean("logged_in", true);
+        Boolean newUser =  gettemppref.getBoolean("newUser", true);
 
         if(newUser) {
             SharedPreferences getpref = getSharedPreferences("GProfile", Context.MODE_PRIVATE);
 
-            accountId = getpref.getString("accountId", "");
-            username = getpref.getString("username", "test");
-            email = getpref.getString("email", "");
+            googleID = getpref.getString("googleID", "");
+            username = getpref.getString("username", "");
             sGender = getpref.getString("sGender", "");
             birthday = getpref.getString("birthday", "");
         }
-       /*debug //Bundle extras = getIntent().getExtras();
-        try {
-            BirthdayTextView_string = getIntent().getStringExtra("birthday");
-            accountIdTextView_string = getIntent().getStringExtra("accountId");
-            String personNameTextView_string = getIntent().getStringExtra("personName");
-            String genderTextView_string = getIntent().getStringExtra("gender");
-            String emailTextView_string = getIntent().getStringExtra("email");
-            String[] separated = BirthdayTextView_string.split("-");
-            BirthdayTextView_string = separated[2]+"/"+separated[1]+"/"+separated[0];
+
+        else
+        {
+            SharedPreferences getpref = getSharedPreferences("myProfile", Context.MODE_PRIVATE);
+
+            googleID = getpref.getString("googleID", "");
+            username = getpref.getString("username", "");
+            sGender = getpref.getString("gender", "");
+            birthday = getpref.getString("birthday", "");
+            hometown = getpref.getString("hometown", "");
+            currResidence = getpref.getString("currResidence", "");
         }
-        catch (Exception ex){
-            //no G+
-            accountIdTextView_string="";
-        }*/
 
         //initialize RadioGroup and RadioButton
         radioSexGroup = (RadioGroup) findViewById(R.id.radioSex);
         radioSexGroup.clearCheck();
-
         rbMale = (RadioButton) findViewById(R.id.rbMale);
         rbFemale = (RadioButton) findViewById(R.id.rbFemale);
 
         //debug
         accountIdTextView = (TextView) findViewById(R.id.accountIdTextView);
-       /* idBirthdayTextView = (TextView) findViewById(R.id.idBirthdayTextView);
-        personNameTextView = (TextView) findViewById(R.id.personNameTextView);
-        genderTextView = (TextView) findViewById(R.id.genderTextView);
-        emailTextView = (TextView) findViewById(R.id.emailTextView);*/
 
         //Initialise EditTexta
         usernameEditText = (EditText) findViewById(R.id.usernameEditText);
@@ -99,16 +84,25 @@ public class ProfileActivity extends AppCompatActivity{
         hometownEditText = (EditText) findViewById(R.id.homeTownEditText);
         currResidenceEditText = (EditText) findViewById(R.id.currResidenceEditText);
 
-        //Fill in data from G+
+        //Fill in data from G+/SharedPref
+
+        accountIdTextView.setText(googleID);
         usernameEditText.setText(username);
 
-        if(sGender.equals("Male"))
+        if(sGender.equals("Male")) {
             radioSexGroup.check(R.id.rbMale);
-        if(sGender.equals("Female"))
+            genderVal = rbMale.getText().toString();
+        }
+        if(sGender.equals("Female")){
             radioSexGroup.check(R.id.rbFemale);
+            genderVal = rbFemale.getText().toString();
+        }
 
         birthdayEditText.setText(birthday);
         birthdayVal =  birthday;
+
+        hometownEditText.setText(hometown);
+        currResidenceEditText.setText(currResidence);
 
         // TextWatcher would let us check validation error on the fly
         usernameEditText.addTextChangedListener(new TextWatcher() {
@@ -153,7 +147,7 @@ public class ProfileActivity extends AppCompatActivity{
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 RadioButton rb = (RadioButton) group.findViewById(checkedId);
                 if(null!=rb && checkedId > -1){
-                    //Toast.makeText(ProfileActivity.this, rb.getText(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ProfileActivity.this, rb.getText(), Toast.LENGTH_SHORT).show();
                     genderVal = rb.getText().toString();
                 }
 
@@ -191,7 +185,9 @@ public class ProfileActivity extends AppCompatActivity{
             //Toast.makeText(this, username+" "+birthday+" "+hometown+" "+currResidence+" "+googleID+" "+gender, Toast.LENGTH_LONG).show();
             Toast.makeText(this, "Saving..", Toast.LENGTH_SHORT).show();
 
+
             new UpdateProfileActivity(this).execute(username, gender, birthday, hometown, currResidence, googleID);
+
             Intent main = new Intent(ProfileActivity.this, MainActivity.class);
             main.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             ProfileActivity.this.startActivity(main);

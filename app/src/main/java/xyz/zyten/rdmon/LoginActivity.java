@@ -37,11 +37,8 @@ public class LoginActivity extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         View.OnClickListener{
 
-    //private static final int REQUEST_CODE_RESOLVE_ERR = 9000;
     private static final String TAG = "LoginActivity";
-    //private static final String TAG = "IdTokenActivity";
     private static final int RC_GET_TOKEN = 9002;
-    private String idBirthdayTextView, accountIdTextView, personNameTextView, genderTextView, emailTextView;
 
     private GoogleApiClient mGoogleApiClient;
     private TextView mIdTokenTextView;
@@ -50,7 +47,6 @@ public class LoginActivity extends AppCompatActivity implements
 
     //Give your SharedPreferences file a name and save it to a static variable
     public static final String TEMP = "temp";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,17 +79,6 @@ public class LoginActivity extends AppCompatActivity implements
                 .build();
 
         // todo: Handle err if API not available
-
-       /* btnlogin.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                Intent login = new Intent(LoginActivity.this, MainActivity.class);
-                login.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                LoginActivity.this.startActivity(login);
-               // LoginActivity.this.finish();
-            }
-        });*/
     }
 
     private void getIdToken() {
@@ -116,8 +101,6 @@ public class LoginActivity extends AppCompatActivity implements
             if (result.isSuccess()) {
                 GoogleSignInAccount acct = result.getSignInAccount();
                 String idToken = acct.getIdToken();
-                //String accountID = GoogleAuthUtil.getAccountId(accountName);
-                //String accountID = act.getAccountId(accountName);
 
                 if (Plus.PeopleApi.getCurrentPerson(mGoogleApiClient) != null) {
 
@@ -160,13 +143,6 @@ public class LoginActivity extends AppCompatActivity implements
                     Log.d(TAG, "Plus.PeopleApi.getCurrentPerson() is null");
                 }
 
-                /*//debug
-                idBirthdayTextView=birthday;
-                accountIdTextView=accountId;
-                personNameTextView=personName;
-                genderTextView=sGender;
-                emailTextView=email;*/
-
                 // Show signed-in UI.
                 Log.d(TAG, "idToken:" + idToken);
                 mIdTokenTextView.setText(getString(R.string.id_token_fmt, idToken));
@@ -188,21 +164,6 @@ public class LoginActivity extends AppCompatActivity implements
         Log.d(TAG, "onConnectionFailed:" + connectionResult);
     }
 
-    /**
-     * Validates that there is a reasonable server client ID in strings.xml, this is only needed
-     * to make sure users of this sample follow the README.
-     */
-    private void validateServerClientID() {
-        String serverClientId = getString(R.string.server_client_id);
-        String suffix = ".apps.googleusercontent.com";
-        if (!serverClientId.trim().endsWith(suffix)) {
-            String message = "Invalid server client ID in strings.xml, must end with " + suffix;
-
-            Log.w(TAG, message);
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-        }
-    }
-
     private void updateUI(boolean signedIn) {
         if (signedIn) {
             //debug
@@ -214,53 +175,35 @@ public class LoginActivity extends AppCompatActivity implements
 
             if(profile_complete)
             {
-                Intent login = new Intent(this, MainActivity.class);
-                LoginActivity.this.startActivity(login);
+                Intent main = new Intent(this, MainActivity.class);
+                LoginActivity.this.startActivity(main);
             }
 
-            SharedPreferences setpref = getSharedPreferences("GProfile", Context.MODE_PRIVATE);
+            else {
+                SharedPreferences setpref = getSharedPreferences("GProfile", Context.MODE_PRIVATE);
 
-            // We need an editor object to make changes
-            SharedPreferences.Editor profileEditor = setpref.edit();
+                // We need an editor object to make changes
+                SharedPreferences.Editor profileEditor = setpref.edit();
+                profileEditor.putString("googleID", accountId);
+                profileEditor.putString("username", username);
+                profileEditor.putString("email", email);
+                profileEditor.putString("sGender", sGender);
+                profileEditor.putString("birthday", birthday);
+                // Commit the changes
+                profileEditor.commit();
 
-            // Set/Store data
-            profileEditor.putString("accountId", accountId);
-            profileEditor.putString("username", username);
-            profileEditor.putString("email", email);
-            profileEditor.putString("sGender", sGender);
-            profileEditor.putString("birthday", birthday);
-            Toast.makeText(this, sGender, Toast.LENGTH_SHORT).show();
-            // Commit the changes
-            profileEditor.commit();
+                //temp to store which pref is available
+                SharedPreferences settemppref = getSharedPreferences(LoginActivity.TEMP, Context.MODE_PRIVATE);
+                SharedPreferences.Editor tempEditor = settemppref.edit();
+                tempEditor.putBoolean("GProfile", true);
+                tempEditor.putBoolean("logged_in", true);
+                tempEditor.commit();
 
-
-            //temp to store which pref is available
-            //SharedPreferences settemppref = getSharedPreferences(LoginActivity.TEMP, Context.MODE_PRIVATE);
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-            // We need an editor object to make changes
-            //SharedPreferences.Editor tempEditor = settemppref.edit();
-            SharedPreferences.Editor tempEditor = sharedPreferences.edit();
-
-            // Set/Store data
-            tempEditor.putBoolean("GProfile", true);
-            tempEditor.putBoolean("logged_in", true);
-
-            // Commit the changes
-            tempEditor.commit();
+            SharedPreferences  gettemppref = getSharedPreferences(LoginActivity.TEMP, 0);
+            boolean logged_in = gettemppref.getBoolean("GProfile", false);
 
             Intent login = new Intent(this, ProfileActivity.class);
-            /*//Bundle extras = new Bundle();
-            //extras.putString("viewTextName",viewTextName);
-            //extras.putString("viewTextEmail",viewTextEmail);
-            login.putExtra("birthday", idBirthdayTextView);
-            login.putExtra("accountId", accountIdTextView);
-            login.putExtra("personName", personNameTextView);
-            login.putExtra("gender", genderTextView);
-            login.putExtra("email", emailTextView);
-            //login.putExtras(extras);*/
-            //login.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            LoginActivity.this.startActivity(login);
+            LoginActivity.this.startActivity(login);}
         } else {
             mIdTokenTextView.setText(getString(R.string.id_token_fmt, "null"));
         }
