@@ -23,8 +23,8 @@ public class CheckConnectivityReceiver extends BroadcastReceiver{
             Log.i ("Tag", "Network Connected");
             //Toast.makeText(context, "Connected to Network", Toast.LENGTH_SHORT).show();
             if (isInternetAvailable()) {
-                Log.i ("Tag", "Internet Connected");
-                //Toast.makeText(context, "Internet Connected", Toast.LENGTH_SHORT).show();
+                Log.i ("Tag", "Connected to Internet");
+                //Toast.makeText(context, "Connected to Internet", Toast.LENGTH_SHORT).show();
             }
 
             else {
@@ -34,6 +34,7 @@ public class CheckConnectivityReceiver extends BroadcastReceiver{
         }
         else {
             Log.i ("Tag", "Network Not Connected");
+            Toast.makeText(context, "No Internet Connection", Toast.LENGTH_SHORT).show();
             //Toast.makeText(context, "Not Connected to Network", Toast.LENGTH_SHORT).show();
 
         }

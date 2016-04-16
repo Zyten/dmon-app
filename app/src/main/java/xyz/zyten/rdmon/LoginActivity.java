@@ -230,10 +230,11 @@ public class LoginActivity extends AppCompatActivity implements
                 Toast.makeText(this.getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
             }
         }
-        /*else {
+        else {
             Log.i ("Tag", "Network Not Connected");
-            Toast.makeText(this.getApplicationContext(), "Not Connected to Network", Toast.LENGTH_LONG).show();
-        }*/
+            Toast.makeText(this.getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this.getApplicationContext(), "Not Connected to Network", Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override

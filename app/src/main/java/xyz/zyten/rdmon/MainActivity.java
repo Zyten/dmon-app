@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
@@ -40,6 +41,9 @@ public class MainActivity extends AppCompatActivity
 
     GoogleApiClient mGoogleApiClient;
     private static final String TAG = "MainActivity";
+    private TextView ThingDataTextView;
+    String link, result;
+    BufferedReader bufferedReader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +66,34 @@ public class MainActivity extends AppCompatActivity
                 .addApi(Plus.API)
                 .addScope(Plus.SCOPE_PLUS_LOGIN)
                 .build();
+
+        ThingDataTextView = (TextView) findViewById(R.id.ThingDataTextView);
+
+        try {
+
+            link = "https://thingspeak.com/channels/108012/field/1/last";
+            URL url = new URL(link);
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            try {
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                StringBuilder stringBuilder = new StringBuilder();
+                String line;
+                while ((line = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(line).append("\n");
+                }
+                bufferedReader.close();
+                ThingDataTextView.setText(stringBuilder.toString());
+            }
+            catch(Exception ex){
+                ThingDataTextView.setText(ex.getMessage());
+            }
+            finally{
+                con.disconnect();
+            }
+        }
+        catch(Exception e) {
+             Log.e("ERROR", e.getMessage(), e);
+        }
     }
 
     //public void sendStream(View v){new getStreamAsyncTask().execute();}
