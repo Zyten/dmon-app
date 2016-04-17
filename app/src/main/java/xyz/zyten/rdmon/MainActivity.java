@@ -20,18 +20,17 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
 import com.google.android.gms.plus.Plus;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -41,7 +40,7 @@ public class MainActivity extends AppCompatActivity
 
     GoogleApiClient mGoogleApiClient;
     private static final String TAG = "MainActivity";
-    private TextView ThingDataTextView;
+    private TextView tempTextView, humidityTextView, dustTextView;
     String link, result;
     BufferedReader bufferedReader;
 
@@ -67,9 +66,11 @@ public class MainActivity extends AppCompatActivity
                 .addScope(Plus.SCOPE_PLUS_LOGIN)
                 .build();
 
-        ThingDataTextView = (TextView) findViewById(R.id.ThingDataTextView);
+        tempTextView = (TextView) findViewById(R.id.tempTextView);
+        humidityTextView = (TextView) findViewById(R.id.humidityTextView);
+        dustTextView = (TextView) findViewById(R.id.dustTextView);
 
-        try {
+        /*try {
 
             link = "https://thingspeak.com/channels/108012/field/1/last";
             URL url = new URL(link);
@@ -85,7 +86,7 @@ public class MainActivity extends AppCompatActivity
                 ThingDataTextView.setText(stringBuilder.toString());
             }
             catch(Exception ex){
-                ThingDataTextView.setText(ex.getMessage());
+                Log.e("ERROR", ex.getMessage(), ex);
             }
             finally{
                 con.disconnect();
@@ -93,7 +94,7 @@ public class MainActivity extends AppCompatActivity
         }
         catch(Exception e) {
              Log.e("ERROR", e.getMessage(), e);
-        }
+        }*/
     }
 
     //public void sendStream(View v){new getStreamAsyncTask().execute();}
@@ -102,6 +103,7 @@ public class MainActivity extends AppCompatActivity
     public void onStart() {
         super.onStart();
         mGoogleApiClient.connect();
+        new FetchThingspeakTask().execute();
     }
 
     @Override
@@ -216,6 +218,65 @@ public class MainActivity extends AppCompatActivity
             return true;
         } else {
             return super.onKeyDown(keyCode, event);
+        }
+    }
+
+    class FetchThingspeakTask extends AsyncTask<Void, Void, String> {
+
+
+        protected void onPreExecute() {
+
+            tempTextView.setText("");
+            humidityTextView.setText("");
+            dustTextView.setText("");
+        }
+
+        protected String doInBackground(Void... urls) {
+            try {
+                URL url = new URL("https://api.thingspeak.com/channels/" + 108012 +
+                        "/feeds/last?" + "key" + "=" +
+                        "MHJRONDJFO3TD3WA" + "");
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                try {
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                    StringBuilder stringBuilder = new StringBuilder();
+                    String line;
+                    while ((line = bufferedReader.readLine()) != null) {
+                        stringBuilder.append(line).append("\n");
+                    }
+                    bufferedReader.close();
+                    return stringBuilder.toString();
+                }
+                finally{
+                    urlConnection.disconnect();
+                }
+            }
+            catch(Exception e) {
+                Log.e("ERROR", e.getMessage(), e);
+                return null;
+            }
+        }
+
+        protected void onPostExecute(String response) {
+            if(response == null) {
+                Toast.makeText(MainActivity.this, "There was an error", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+
+            try {
+                JSONObject channel = (JSONObject) new JSONTokener(response).nextValue();
+                double temp = channel.getDouble("field1");
+                double humidity = channel.getDouble("field2");
+                double dust = channel.getDouble("field3");
+
+                tempTextView.setText(String.valueOf(temp));
+                humidityTextView.setText(String.valueOf(humidity));
+                dustTextView.setText(String.valueOf(dust));
+                Log.e(TAG, String.valueOf(temp) + String.valueOf(humidity) + String.valueOf(dust));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     }
 

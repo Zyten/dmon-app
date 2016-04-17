@@ -204,6 +204,7 @@ public class LoginActivity extends AppCompatActivity implements
 
             Intent login = new Intent(this, ProfileActivity.class);
             LoginActivity.this.startActivity(login);}
+            LoginActivity.this.finish();
         } else {
             mIdTokenTextView.setText(getString(R.string.id_token_fmt, "null"));
         }
