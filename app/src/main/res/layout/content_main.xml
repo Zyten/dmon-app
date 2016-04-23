@@ -18,44 +18,63 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".MainActivity"
     tools:showIn="@layout/app_bar_main"
-    android:background="@drawable/bghome">
-
-    <RelativeLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/relativeLayout3">
-
-    </RelativeLayout>
+    android:background="@color/material_deep_teal_500">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="temp"
         android:id="@+id/tempTextView"
-        android:layout_marginLeft="30dp"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="31dp"
-        android:layout_below="@+id/relativeLayout3"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/dustTextView"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_marginLeft="82dp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="humidity"
         android:id="@+id/humidityTextView"
-        android:layout_alignTop="@+id/tempTextView"
-        android:layout_centerHorizontal="true" />
+        android:layout_marginTop="42dp"
+        android:layout_below="@+id/imageView"
+        android:layout_alignLeft="@+id/imageView"
+        android:layout_alignStart="@+id/imageView" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="dust"
         android:id="@+id/dustTextView"
-        android:layout_alignTop="@+id/humidityTextView"
-        android:layout_alignRight="@+id/relativeLayout3"
-        android:layout_alignEnd="@+id/relativeLayout3"
-        android:layout_marginRight="31dp"
-        android:layout_marginEnd="31dp" />
+        android:layout_below="@+id/humidityTextView"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="82dp" />
+
+    <TextView
+        android:id="@+id/weather_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="70sp" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/logo"
+        android:id="@+id/imageView"
+        android:layout_alignRight="@+id/dustTextView"
+        android:layout_alignEnd="@+id/dustTextView" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="56"
+        android:textSize="50dp"
+        android:id="@+id/textViewAPI"
+        android:layout_marginRight="86dp"
+        android:layout_marginEnd="86dp" />
+
 </RelativeLayout>
 </android.support.v4.widget.SwipeRefreshLayout>

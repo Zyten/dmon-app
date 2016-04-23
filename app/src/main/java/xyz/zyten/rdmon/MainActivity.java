@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -33,6 +34,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -41,8 +43,6 @@ public class MainActivity extends AppCompatActivity
     GoogleApiClient mGoogleApiClient;
     private static final String TAG = "MainActivity";
     private TextView tempTextView, humidityTextView, dustTextView;
-    String link, result;
-    BufferedReader bufferedReader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,32 +69,6 @@ public class MainActivity extends AppCompatActivity
         tempTextView = (TextView) findViewById(R.id.tempTextView);
         humidityTextView = (TextView) findViewById(R.id.humidityTextView);
         dustTextView = (TextView) findViewById(R.id.dustTextView);
-
-        /*try {
-
-            link = "https://thingspeak.com/channels/108012/field/1/last";
-            URL url = new URL(link);
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            try {
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                StringBuilder stringBuilder = new StringBuilder();
-                String line;
-                while ((line = bufferedReader.readLine()) != null) {
-                    stringBuilder.append(line).append("\n");
-                }
-                bufferedReader.close();
-                ThingDataTextView.setText(stringBuilder.toString());
-            }
-            catch(Exception ex){
-                Log.e("ERROR", ex.getMessage(), ex);
-            }
-            finally{
-                con.disconnect();
-            }
-        }
-        catch(Exception e) {
-             Log.e("ERROR", e.getMessage(), e);
-        }*/
     }
 
     //public void sendStream(View v){new getStreamAsyncTask().execute();}
@@ -264,74 +238,47 @@ public class MainActivity extends AppCompatActivity
                 return;
             }
 
-
             try {
                 JSONObject channel = (JSONObject) new JSONTokener(response).nextValue();
                 double temp = channel.getDouble("field1");
                 double humidity = channel.getDouble("field2");
                 double dust = channel.getDouble("field3");
+                int API = 0;
+
+                dust = 140;
+
+                if(dust <= 0)
+                    API = 0;
+                else if(dust <= 50)
+                    API = Integer.parseInt(String.valueOf(dust));
+                else if (dust <= 250)
+                {
+                    int tmp = 60;
+                    for(int i=5; i <=100; i+=5)
+                    {
+                        if(dust <= tmp)
+                        {
+                            Log.d("temp =", String.valueOf(tmp));
+                            API = tmp - i;
+                            break;
+                        }
+                        tmp += 10;
+                    }
+                }
+                else
+                {
+                    API = 666;
+                }
 
                 tempTextView.setText(String.valueOf(temp));
                 humidityTextView.setText(String.valueOf(humidity));
-                dustTextView.setText(String.valueOf(dust));
+                dustTextView.setText(String.valueOf(API));
                 Log.e(TAG, String.valueOf(temp) + String.valueOf(humidity) + String.valueOf(dust));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
     }
-
-   /*private class getStreamAsyncTask extends AsyncTask<String, Void, String> {
-
-        protected String doInBackground(String... params) {
-            return sendData();
-        }
-
-        protected String sendData(){
-            String device="D-MON@zytenn.zytenn";  //SUBSTITUTE YOUR OWN VALUE
-            String apikey="f88617251146351ca66cad2bd0945f3149c65169eb1cf3a16e13604df7b9ffc5";  //SUBSTITUTE YOUR OWN VALUE
-            String request = "https://api.carriots.com/streams";
-            String decodedString="";
-            String returnMsg="";
-            String writeOut="";
-            URL url;
-            HttpURLConnection connection = null;
-            try
-            {
-                url = new URL(request);
-                connection = (HttpURLConnection) url.openConnection();
-                //establish the parameters for the http post request
-                connection.setDoOutput(true);
-                connection.addRequestProperty("carriots.apikey", apikey);
-                connection.addRequestProperty("Content-Type", "application/json");
-                connection.setRequestMethod("POST");
-                //construct the json string to be sent
-                writeOut = "{\"protocol\":\"v2\",\"checksum\":\"\"," +
-                        "\"device\":\"" + device +
-                        "\",\"at\":\"now\",\"data\":{\"test\":\"ok\"}}";
-                //create an output stream writer and write the json string to it
-                final OutputStreamWriter osw = new OutputStreamWriter(connection.getOutputStream());
-                osw.write(writeOut);
-                osw.close();
-                //create a buffered reader to interpret the incoming message from the carriots system
-                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                while ((decodedString = in.readLine()) != null) {
-                    returnMsg+=decodedString;
-                }
-                in.close();
-                connection.disconnect();
-            } catch (Exception e) {
-                e.printStackTrace();
-                returnMsg=""+e;
-            }
-            return returnMsg;
-        }
-
-        protected void onPostExecute(String result){
-            //show the message returned from Carriots to the user
-            Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG).show();
-        }
-    }*/
 }
 
 

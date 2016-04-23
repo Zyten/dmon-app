@@ -22,18 +22,21 @@
         <activity
             android:name=".LoginActivity"
             android:label="Realtime D-MON"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
 
         <activity
             android:name=".MainActivity"
             android:label="Realtime D-MON"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" >
         </activity>
         
         <activity
             android:name=".ProfileActivity"
             android:label="Realtime D-MON"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity

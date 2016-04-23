@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -205,9 +207,6 @@ public class LoginActivity extends AppCompatActivity implements
                 tempEditor.putBoolean("GProfile", true);
                 tempEditor.putBoolean("logged_in", true);
                 tempEditor.commit();
-
-            SharedPreferences  gettemppref = getSharedPreferences(LoginActivity.TEMP, 0);
-            boolean logged_in = gettemppref.getBoolean("GProfile", false);
 
             Intent login = new Intent(this, ProfileActivity.class);
             LoginActivity.this.startActivity(login);}

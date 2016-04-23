@@ -66,9 +66,7 @@ dependencies {
     // Dependency for Google Sign-In
     compile 'com.google.android.gms:play-services-auth:8.3.0'
     compile 'com.google.android.gms:play-services-plus:8.3.0'
-    compile 'com.squareup.picasso:picasso:2.5.2'
-    compile 'de.hdodenhof:circleimageview:2.0.0'
-    compile 'com.android.support:support-v4:23.1.1'
+    compile 'com.android.support:support-v4:23.1.+'
     compile 'com.github.PhilJay:MPAndroidChart:v2.1.6'
     compile 'com.macroyau:thingspeakandroid:0.2.0'
 }
