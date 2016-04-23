@@ -177,6 +177,13 @@ public class LoginActivity extends AppCompatActivity implements
             {
                 Intent main = new Intent(this, MainActivity.class);
                 LoginActivity.this.startActivity(main);
+
+                //temp to store which pref is available
+                SharedPreferences settemppref = getSharedPreferences(LoginActivity.TEMP, Context.MODE_PRIVATE);
+                SharedPreferences.Editor tempEditor = settemppref.edit();
+                tempEditor.putBoolean("GProfile", true);
+                tempEditor.putBoolean("logged_in", true);
+                tempEditor.commit();
             }
 
             else {
