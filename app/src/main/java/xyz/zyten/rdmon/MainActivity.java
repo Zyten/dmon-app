@@ -174,6 +174,7 @@ public class MainActivity extends AppCompatActivity
             Intent login = new Intent(MainActivity.this, LoginActivity.class);
             login.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             MainActivity.this.startActivity(login);
+            MainActivity.this.finish();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
