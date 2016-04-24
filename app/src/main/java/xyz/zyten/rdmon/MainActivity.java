@@ -16,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -34,6 +35,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity
@@ -42,7 +45,7 @@ public class MainActivity extends AppCompatActivity
 
     GoogleApiClient mGoogleApiClient;
     private static final String TAG = "MainActivity";
-    private TextView tempTextView, humidityTextView, dustTextView;
+    private TextView tempTextView, humidityTextView, dustTextView, APITextView, lastupdateTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +53,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("");
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -69,6 +73,8 @@ public class MainActivity extends AppCompatActivity
         tempTextView = (TextView) findViewById(R.id.tempTextView);
         humidityTextView = (TextView) findViewById(R.id.humidityTextView);
         dustTextView = (TextView) findViewById(R.id.dustTextView);
+        APITextView = (TextView) findViewById(R.id.APITextView);
+        lastupdateTextView = (TextView) findViewById(R.id.lastupdateTextView);
     }
 
     //public void sendStream(View v){new getStreamAsyncTask().execute();}
@@ -90,6 +96,12 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
 
 
     @Override
@@ -245,12 +257,10 @@ public class MainActivity extends AppCompatActivity
                 double dust = channel.getDouble("field3");
                 int API = 0;
 
-                dust = 140;
-
                 if(dust <= 0)
                     API = 0;
                 else if(dust <= 50)
-                    API = Integer.parseInt(String.valueOf(dust));
+                    API = (int) Math.round(dust);
                 else if (dust <= 250)
                 {
                     int tmp = 60;
@@ -273,6 +283,12 @@ public class MainActivity extends AppCompatActivity
                 tempTextView.setText(String.valueOf(temp));
                 humidityTextView.setText(String.valueOf(humidity));
                 dustTextView.setText(String.valueOf(API));
+                APITextView.setText(String.valueOf(API));
+                Date curDate = new Date();
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm");
+                String DateToStr = format.format(curDate);
+                lastupdateTextView.setText(DateToStr);
+
                 Log.e(TAG, String.valueOf(temp) + String.valueOf(humidity) + String.valueOf(dust));
             } catch (JSONException e) {
                 e.printStackTrace();

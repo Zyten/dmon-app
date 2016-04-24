@@ -29,7 +29,6 @@
         <activity
             android:name=".MainActivity"
             android:label="Realtime D-MON"
-            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" >
         </activity>
         
