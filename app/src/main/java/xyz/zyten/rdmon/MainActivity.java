@@ -280,9 +280,9 @@ public class MainActivity extends AppCompatActivity
                     API = 666;
                 }
 
-                tempTextView.setText(String.valueOf(temp));
-                humidityTextView.setText(String.valueOf(humidity));
-                dustTextView.setText(String.valueOf(API));
+                tempTextView.setText(String.valueOf(temp)+ getString(R.string.unit_temp));
+                humidityTextView.setText(String.valueOf(humidity)+ getString(R.string.unit_humidity));
+                dustTextView.setText(String.valueOf(dust)+ getString(R.string.unit_dust));
                 APITextView.setText(String.valueOf(API));
                 Date curDate = new Date();
                 SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm");

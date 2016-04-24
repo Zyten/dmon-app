@@ -71,3 +71,4 @@ dependencies {
     compile 'com.macroyau:thingspeakandroid:0.2.0'
     compile 'com.github.pwittchen:weathericonview:1.1.0'
 }
+

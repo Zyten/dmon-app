@@ -38,7 +38,7 @@
     <string name="weather_foggy">&#xf014;</string>
     <string name="weather_cloudy">&#xf013;</string>
     <string name="weather_rainy">&#xf019;</string>
-    <string name="weather_snowy">&#xf01b;</string>
-    <string name="weather_thunder">&#xf01e;</string>
-    <string name="weather_drizzle">&#xf01c;</string>
+    <string name="unit_humidity">&#160;%</string>
+    <string name="unit_temp">&#160;\u2103</string>
+    <string name="unit_dust">&#160;μg/m\u00B3</string>
 </resources>
