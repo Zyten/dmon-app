@@ -10,15 +10,19 @@
         android:layout_width="match_parent" android:theme="@style/AppTheme.AppBarOverlay">
         <android.support.v7.widget.Toolbar android:id="@+id/toolbar"
             android:layout_width="match_parent" android:layout_height="?attr/actionBarSize"
-            android:background="#7fa87f" app:popupTheme="@style/AppTheme.PopupOverlay">
+            android:background="#7fa87f" app:popupTheme="@style/AppTheme.PopupOverlay"
+            xmlns:custom="http://schemas.android.com/apk/res-auto">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="REALTIME D-MON"
+                android:text="Realtime D-MON"
                 android:textSize="28dp"
                 android:textColor="#ffffff"
                 android:layout_gravity="center"
+                android:gravity="center"
                 android:id="@+id/toolbar_title" />
+
+
         </android.support.v7.widget.Toolbar>
 
     </android.support.design.widget.AppBarLayout>
