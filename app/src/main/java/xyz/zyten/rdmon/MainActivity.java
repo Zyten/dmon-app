@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -241,34 +243,54 @@ public class MainActivity extends AppCompatActivity
         }
 
         protected String doInBackground(Void... urls) {
-            try {
-                URL url = new URL("https://api.thingspeak.com/channels/" + 108012 +
-                        "/feeds/last?" + "key" + "=" +
-                        "MHJRONDJFO3TD3WA" + "");
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                try {
-                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-                    StringBuilder stringBuilder = new StringBuilder();
-                    String line;
-                    while ((line = bufferedReader.readLine()) != null) {
-                        stringBuilder.append(line).append("\n");
+
+            if(isNetworkAvailable()){
+                if (isInternetAvailable()) {
+                    Log.i ("Tag", "Internet Connected");
+                    try {
+                        URL url = new URL("https://api.thingspeak.com/channels/" + 108012 +
+                                "/feeds/last?" + "key" + "=" +
+                                "MHJRONDJFO3TD3WA" + "");
+                        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                        try {
+                            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                            StringBuilder stringBuilder = new StringBuilder();
+                            String line;
+                            while ((line = bufferedReader.readLine()) != null) {
+                                stringBuilder.append(line).append("\n");
+                            }
+                            bufferedReader.close();
+                            return stringBuilder.toString();
+                        }
+                        finally{
+                            urlConnection.disconnect();
+                        }
                     }
-                    bufferedReader.close();
-                    return stringBuilder.toString();
+                    catch(Exception e) {
+                        Log.e("ERROR", e.getMessage(), e);
+                        return null;
+                    }
                 }
-                finally{
-                    urlConnection.disconnect();
+
+                else {
+                    Log.i ("Tag", "No Internet Connection");
+                    return "no_internet";
                 }
             }
-            catch(Exception e) {
-                Log.e("ERROR", e.getMessage(), e);
-                return null;
+            else {
+                Log.i ("Tag", "Network Not Connected");
+                return "no_internet";
             }
         }
 
         protected void onPostExecute(String response) {
             if(response == null) {
                 Toast.makeText(MainActivity.this, "There was an error", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if(response == "no_internet") {
+                Toast.makeText(MainActivity.this, "No Internet Connection", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -316,6 +338,26 @@ public class MainActivity extends AppCompatActivity
                 e.printStackTrace();
             }
         }
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null;
+    }
+
+    private boolean isInternetAvailable()
+    {
+        try
+        {
+            return (Runtime.getRuntime().exec ("ping -c 1 google.com").waitFor() == 0);
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+        }
+        return false;
     }
 }
 
