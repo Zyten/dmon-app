@@ -70,5 +70,6 @@ dependencies {
     compile 'com.github.PhilJay:MPAndroidChart:v2.1.6'
     compile 'com.macroyau:thingspeakandroid:0.2.0'
     compile 'com.github.pwittchen:weathericonview:1.1.0'
+    compile 'com.google.android.gms:play-services-appindexing:8.3.0'
 }
 

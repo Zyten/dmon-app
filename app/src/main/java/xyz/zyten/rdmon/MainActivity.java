@@ -146,7 +146,7 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_profile) {
+        if (id == R.id.nav_personal_profile) {
             Intent profile = new Intent(MainActivity.this, ProfileActivity.class);
             profile.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             MainActivity.this.startActivity(profile);
