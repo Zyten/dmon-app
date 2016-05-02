@@ -151,9 +151,9 @@ public class MainActivity extends AppCompatActivity
             profile.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             MainActivity.this.startActivity(profile);
         } else if (id == R.id.nav_history) {
-            /*Intent history = new Intent(MainActivity.this, HistoryActivity.class);
+            Intent history = new Intent(MainActivity.this, HistoryActivity.class);
             history.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            MainActivity.this.startActivity(history);*/
+            MainActivity.this.startActivity(history);
         } else if (id == R.id.nav_air) {
 
         } else if (id == R.id.nav_share) {
@@ -299,9 +299,9 @@ public class MainActivity extends AppCompatActivity
                 double temp = channel.getDouble("field1");
                 double humidity = channel.getDouble("field2");
                 double dust = channel.getDouble("field3");
-                int API = 0;
+                int API = channel.getInt("field4");
 
-                if(dust <= 0)
+                /*if(dust <= 0)
                     API = 0;
                 else if(dust <= 50)
                     API = (int) Math.round(dust);
@@ -322,7 +322,7 @@ public class MainActivity extends AppCompatActivity
                 else
                 {
                     API = 666;
-                }
+                }*/
 
                 tempTextView.setText(String.valueOf(temp)+ getString(R.string.unit_temp));
                 humidityTextView.setText(String.valueOf(humidity)+ getString(R.string.unit_humidity));
