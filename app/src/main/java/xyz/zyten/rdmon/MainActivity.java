@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 
+import com.google.android.gms.common.api.BooleanResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.plus.Plus;
 
@@ -150,6 +151,10 @@ public class MainActivity extends AppCompatActivity
             Intent profile = new Intent(MainActivity.this, ProfileActivity.class);
             profile.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             MainActivity.this.startActivity(profile);
+        } else if (id == R.id.nav_health_profile) {
+            Intent hprofile = new Intent(MainActivity.this, HealthProfileActivity.class);
+            hprofile.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            MainActivity.this.startActivity(hprofile);
         } else if (id == R.id.nav_history) {
             Intent history = new Intent(MainActivity.this, HistoryActivity.class);
             history.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -340,6 +345,8 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+
+
     private boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -351,7 +358,18 @@ public class MainActivity extends AppCompatActivity
     {
         try
         {
-            return (Runtime.getRuntime().exec ("ping -c 1 google.com").waitFor() == 0);
+            HttpURLConnection urlc = (HttpURLConnection)
+                    (new URL("http://clients3.google.com/generate_204")
+                            .openConnection());
+            urlc.setRequestProperty("User-Agent", "Android");
+            urlc.setRequestProperty("Connection", "close");
+            urlc.setConnectTimeout(1500);
+            urlc.connect();
+
+            return (urlc.getResponseCode() == 204 &&
+                    urlc.getContentLength() == 0);
+
+            //return (Runtime.getRuntime().exec ("ping -c 1 google.com").waitFor() == 0);
         }
         catch (Exception ex)
         {
