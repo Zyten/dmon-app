@@ -73,7 +73,7 @@ public class HistoryActivity extends AppCompatActivity{
 
     private void initWebView() {
         mWebView = (WebView) findViewById(R.id.webView);
-        mWebView.setBackgroundColor(Color.TRANSPARENT);
+        //mWebView.setBackgroundColor(Color.TRANSPARENT);
         // WebViewの設定
         WebSettings settings = mWebView.getSettings();
         settings.setJavaScriptEnabled(true);

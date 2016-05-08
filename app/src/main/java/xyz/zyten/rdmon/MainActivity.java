@@ -1,16 +1,20 @@
 package xyz.zyten.rdmon;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.NavigationView;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -40,7 +44,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -48,8 +54,10 @@ public class MainActivity extends AppCompatActivity
 
     GoogleApiClient mGoogleApiClient;
     private static final String TAG = "MainActivity";
-    private TextView tempTextView, humidityTextView, dustTextView, APITextView, lastupdateTextView;
+    protected TextView tempTextView, humidityTextView, dustTextView, APITextView, lastupdateTextView,
+            HeartPrecautionTextView,ExercisePrecautionTextView,GeneralPrecautionTextView;
     SwipeRefreshLayout swipeRefreshLayout;
+    List<Precaution> precautions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +91,26 @@ public class MainActivity extends AppCompatActivity
         dustTextView = (TextView) findViewById(R.id.dustTextView);
         APITextView = (TextView) findViewById(R.id.APITextView);
         lastupdateTextView = (TextView) findViewById(R.id.lastupdateTextView);
+        HeartPrecautionTextView = (TextView) findViewById(R.id.HeartPrecautionTextView);
+        ExercisePrecautionTextView = (TextView) findViewById(R.id.ExercisePrecautionTextView);
+        GeneralPrecautionTextView = (TextView) findViewById(R.id.GeneralPrecautionTextView);
+        //Get precautions desc from xml array
+        Resources res = getResources();
+        String[] desc = res.getStringArray(R.array.desc);
+        Integer temp=-1; //holds array index for desc
+
+        //Programmatically create precaution objects into ArrayList
+        precautions = new ArrayList<Precaution>();
+        for(Integer i = 0; i<3;i++)
+            for(Integer j =0; j<3;j++) {
+                temp++;
+                precautions.add(new Precaution(i, j, desc[temp]));
+            }
+
+        //Range ID: 0 - Good, 1 - Moderate, 2 - Unhealthy
+        //HealthID: 0 - isSemsitive, 1 - doesExercise, 2 - None
+
+
     }
 
     SwipeRefreshLayout.OnRefreshListener onRefreshListener = new SwipeRefreshLayout.OnRefreshListener(){
@@ -161,8 +189,6 @@ public class MainActivity extends AppCompatActivity
             MainActivity.this.startActivity(history);
         } else if (id == R.id.nav_air) {
 
-        } else if (id == R.id.nav_share) {
-
         } else if (id == R.id.nav_about) {
 
         } else if (id == R.id.nav_signout) {
@@ -237,8 +263,38 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    protected class Precaution{
+        private Integer rangeID;
+        private Integer healthID;
+        private String desc;
+
+
+        public Precaution(){
+
+        }
+
+        public Precaution(Integer rangeID, Integer healthID, String desc){
+            this.rangeID = rangeID;
+            this.healthID= healthID;
+            this.desc = desc;
+        }
+
+        public Integer getRangeID(){
+            return rangeID;
+        }
+
+        public Integer getHealthID(){
+            return healthID;
+        }
+
+        public String getPrecaution(){
+            return this.desc;
+        }
+    }
+
     class FetchThingspeakTask extends AsyncTask<Void, Void, String> {
 
+    Context context;
 
         protected void onPreExecute() {
 
@@ -248,7 +304,6 @@ public class MainActivity extends AppCompatActivity
         }
 
         protected String doInBackground(Void... urls) {
-
             if(isNetworkAvailable()){
                 if (isInternetAvailable()) {
                     Log.i ("Tag", "Internet Connected");
@@ -306,29 +361,6 @@ public class MainActivity extends AppCompatActivity
                 double dust = channel.getDouble("field3");
                 int API = channel.getInt("field4");
 
-                /*if(dust <= 0)
-                    API = 0;
-                else if(dust <= 50)
-                    API = (int) Math.round(dust);
-                else if (dust <= 250)
-                {
-                    int tmp = 60;
-                    for(int i=5; i <=100; i+=5)
-                    {
-                        if(dust <= tmp)
-                        {
-                            Log.d("temp =", String.valueOf(tmp));
-                            API = tmp - i;
-                            break;
-                        }
-                        tmp += 10;
-                    }
-                }
-                else
-                {
-                    API = 666;
-                }*/
-
                 tempTextView.setText(String.valueOf(temp)+ getString(R.string.unit_temp));
                 humidityTextView.setText(String.valueOf(humidity)+ getString(R.string.unit_humidity));
                 dustTextView.setText(String.valueOf(dust)+ getString(R.string.unit_dust));
@@ -339,6 +371,79 @@ public class MainActivity extends AppCompatActivity
                 lastupdateTextView.setText(DateToStr);
 
                 Log.e(TAG, String.valueOf(temp) + String.valueOf(humidity) + String.valueOf(dust));
+
+                Integer rangeID;
+
+                if(API < 51)
+                    rangeID=0;
+                else if(API < 101)
+                    rangeID=1;
+                else if (API < 151)
+                    rangeID = 2;
+                else
+                    rangeID = -1;
+
+                Integer isSensitive = 0;
+                Integer doesExercise = 0;
+
+                try {
+                    SharedPreferences getpref = getSharedPreferences("myProfile", 0);
+                    isSensitive = getpref.getInt("isSensitive", 0);
+                    doesExercise = getpref.getInt("doesExercise", 0);
+                }
+                catch(NullPointerException ex){
+                    Log.e("myProfile", ex.getMessage());}
+
+                if(rangeID == 0) {
+                    if (isSensitive == 1)
+                        HeartPrecautionTextView.setText(precautions.get(0).getPrecaution());
+                    else if (doesExercise == 1)
+                        HeartPrecautionTextView.setText(precautions.get(1).getPrecaution());
+                    else{
+                        HeartPrecautionTextView.setText("");
+                        ExercisePrecautionTextView.setText("");
+                    }
+                    GeneralPrecautionTextView.setText(precautions.get(2).getPrecaution());
+                }
+                else if(rangeID == 1) {
+                    if (isSensitive == 1)
+                        HeartPrecautionTextView.setText(precautions.get(3).getPrecaution());
+                    else if (doesExercise == 1)
+                        HeartPrecautionTextView.setText(precautions.get(4).getPrecaution());
+                    else{
+                        HeartPrecautionTextView.setText("");
+                        ExercisePrecautionTextView.setText("");
+                    }
+                    GeneralPrecautionTextView.setText(precautions.get(5).getPrecaution());
+                }
+                else if(rangeID == 2) {
+                    if (isSensitive == 1)
+                        HeartPrecautionTextView.setText(precautions.get(6).getPrecaution());
+                    else if (doesExercise == 1)
+                        HeartPrecautionTextView.setText(precautions.get(7).getPrecaution());
+                    else{
+                        HeartPrecautionTextView.setText("");
+                        ExercisePrecautionTextView.setText("");
+                    }
+                    GeneralPrecautionTextView.setText(precautions.get(8).getPrecaution());
+                }
+                else
+                    Log.d("Tag", "Invalid rangeID");
+
+
+                /*int colorFrom = ContextCompat.getColor(context, R.color.mgreen);
+                int colorTo = ContextCompat.getColor(context, R.color.myellow);
+                ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
+                colorAnimation.setDuration(2500); // milliseconds
+                colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+                    @Override
+                    public void onAnimationUpdate(ValueAnimator animator) {
+                        findViewById(R.id.main_content).setBackgroundColor((int) animator.getAnimatedValue());
+                    }
+
+                });
+                colorAnimation.start();*/
             } catch (JSONException e) {
                 e.printStackTrace();
             }

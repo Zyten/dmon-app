@@ -95,7 +95,8 @@
         android:layout_above="@+id/btnsave1"
         android:layout_alignLeft="@+id/birthdayEditText"
         android:layout_alignStart="@+id/birthdayEditText"
-        android:layout_marginBottom="77dp" />
+        android:layout_marginBottom="77dp"
+        android:imeOptions="actionDone"/>
 
     <EditText
         android:layout_width="280dp"
@@ -180,5 +181,6 @@
             android:layout_height="wrap_content"
             android:text="Female" />
     </RadioGroup>
+
 
 </RelativeLayout>

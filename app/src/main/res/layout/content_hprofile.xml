@@ -23,12 +23,20 @@
         android:onClick="save"
         android:background="@drawable/btnsave1" />
 
-    <ListView
+    <!--<ListView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/listView"
         android:layout_below="@+id/relativeLayout"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true" />-->
+    <ListView
+        android:id="@+id/category_list"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dip"
+        android:layout_marginBottom="5dip"
+        android:background="#00000000"
+        />
 
 </RelativeLayout>

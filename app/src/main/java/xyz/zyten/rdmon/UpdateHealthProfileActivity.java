@@ -19,27 +19,32 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 
-public class UpdateProfileActivity extends AsyncTask<String, Void, String> {
+public class UpdateHealthProfileActivity extends AsyncTask<Integer, Void, String> {
+
     private Context context;
+    private Integer isSensitive, doesExercise;
+    private String googleID;
 
-    String username, gender, birthday, hometown, currResidence, googleID;
-
-    public UpdateProfileActivity(Context context) {
+    public UpdateHealthProfileActivity(Context context) {
         this.context = context;
     }
 
+    @Override
     protected void onPreExecute() {
+        super.onPreExecute();
+        //get sharedPreferences here
+        SharedPreferences getpref = context.getSharedPreferences("myProfile", Context.MODE_PRIVATE);
 
+        googleID = getpref.getString("googleID", "");
     }
 
     @Override
-    protected String doInBackground(String... arg0) {
-        username = arg0[0];
-        gender = arg0[1];
-        birthday = arg0[2];
-        hometown = arg0[3];
-        currResidence = arg0[4];
-        googleID = arg0[5];
+    protected String doInBackground(Integer... arg0) {
+        isSensitive = arg0[0];
+        doesExercise = arg0[1];
+
+        Log.d("TAG", isSensitive.toString());
+        Log.d("TAG", doesExercise.toString());
 
         String link;
         String data;
@@ -47,14 +52,11 @@ public class UpdateProfileActivity extends AsyncTask<String, Void, String> {
         String result;
 
         try {
-            data = "?username=" + URLEncoder.encode(username, "UTF-8");
-            data += "&gender=" + URLEncoder.encode(gender, "UTF-8");
-            data += "&birthday=" + URLEncoder.encode(birthday, "UTF-8");
-            data += "&hometown=" + URLEncoder.encode(hometown, "UTF-8");
-            data += "&currResidence=" + URLEncoder.encode(currResidence, "UTF-8");
+            data = "?isSensitive=" + URLEncoder.encode(isSensitive.toString(), "UTF-8");
+            data += "&doesExercise=" + URLEncoder.encode(doesExercise.toString(), "UTF-8");
             data += "&googleID=" + URLEncoder.encode(googleID, "UTF-8");
 
-            link = "http://zyten.xyz/testo/updateProfile.php" + data;
+            link = "http://zyten.xyz/testo/updateHProfile.php" + data;
             URL url = new URL(link);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
@@ -76,24 +78,14 @@ public class UpdateProfileActivity extends AsyncTask<String, Void, String> {
                 String query_result = jsonObj.getString("query_result");
                 if (query_result.equals("SUCCESS")) {
                     SharedPreferences setpref = context.getSharedPreferences("myProfile", Context.MODE_PRIVATE);
-                    SharedPreferences.Editor profileEditor = setpref.edit();
-                    profileEditor.putBoolean("profile_complete", true);
-                    profileEditor.putString("googleID", googleID);
-                    profileEditor.putString("username", username);
-                    profileEditor.putString("gender", gender);
-                    profileEditor.putString("birthday", birthday);
-                    profileEditor.putString("hometown", hometown);
-                    profileEditor.putString("currResidence", currResidence);
-                    profileEditor.commit();
+                    SharedPreferences.Editor hprofileEditor = setpref.edit();
+                    hprofileEditor.putInt("isSensitive", isSensitive);
+                    hprofileEditor.putInt("doesExercise", doesExercise);
+                    hprofileEditor.commit();
 
-                    SharedPreferences settemppref = context.getSharedPreferences("temp", Context.MODE_PRIVATE);
-                    SharedPreferences.Editor tempEditor = settemppref.edit();
-                    tempEditor.putBoolean("newUser", false);
-                    tempEditor.commit();
-
-                    Toast.makeText(context, "Personal profile updated.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Health profile updated.", Toast.LENGTH_SHORT).show();
                 } else if (query_result.equals("FAILURE")) {
-                    Toast.makeText(context, "Update 233537878failed.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Update failed.", Toast.LENGTH_SHORT).show();
                 } else if (query_result.equals("REACHED")) {
                     Toast.makeText(context, "Reached.", Toast.LENGTH_SHORT).show();
                 } else {

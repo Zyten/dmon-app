@@ -5,4 +5,8 @@
     <color name="colorAccent">#FF4081</color>
     <color name="black">#000000</color>
     <color name="transparent">#00000000</color>
+    <color name="mgreen">#2CCA90</color>
+    <color name="myellow">#EEE657</color>
+    <color name="mblue">#2B82C9</color>
+
 </resources>

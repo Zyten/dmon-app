@@ -1,7 +1,9 @@
 package xyz.zyten.rdmon;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -11,8 +13,11 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -155,10 +160,24 @@ public class ProfileActivity extends AppCompatActivity{
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 RadioButton rb = (RadioButton) group.findViewById(checkedId);
                 if(null!=rb && checkedId > -1){
-                    Toast.makeText(ProfileActivity.this, rb.getText(), Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(ProfileActivity.this, rb.getText(), Toast.LENGTH_SHORT).show();
                     genderVal = rb.getText().toString();
                 }
 
+            }
+        });
+
+        EditText edit_txt = (EditText) findViewById(R.id.currResidenceEditText);
+
+        edit_txt.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    mgr.hideSoftInputFromWindow(currResidenceEditText.getWindowToken(), 0);
+                    return true;
+                }
+                return false;
             }
         });
 
@@ -191,7 +210,7 @@ public class ProfileActivity extends AppCompatActivity{
             String googleID = accountIdTextView.getText().toString();
             String gender = genderVal;
             //Toast.makeText(this, username+" "+birthday+" "+hometown+" "+currResidence+" "+googleID+" "+gender, Toast.LENGTH_LONG).show();
-            Toast.makeText(this, "Saving..", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Saving..", Toast.LENGTH_SHORT).show();
 
 
             new UpdateProfileActivity(this).execute(username, gender, birthday, hometown, currResidence, googleID);
@@ -243,5 +262,17 @@ public class ProfileActivity extends AppCompatActivity{
             finish();}
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        //Handle the back button
+        if(keyCode == KeyEvent.KEYCODE_BACK) {
+            ProfileActivity.this.finish();
+            return true;
+        }
+        else {
+            return super.onKeyDown(keyCode, event);
+        }
     }
 }

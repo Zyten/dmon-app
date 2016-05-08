@@ -10,6 +10,9 @@ import android.net.ConnectivityManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 public class CheckConnectivityReceiver extends BroadcastReceiver{
 
     private static final String TAG = "CheckConnectivityRcvr";
@@ -34,8 +37,8 @@ public class CheckConnectivityReceiver extends BroadcastReceiver{
         }
         else {
             Log.i ("Tag", "Network Not Connected");
-            Toast.makeText(context, "No Internet Connection", Toast.LENGTH_SHORT).show();
-            //Toast.makeText(context, "Not Connected to Network", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(context, "No Internet Connection", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Not Connected to Network", Toast.LENGTH_SHORT).show();
 
         }
     }
@@ -44,7 +47,17 @@ public class CheckConnectivityReceiver extends BroadcastReceiver{
     {
         try
         {
-            return (Runtime.getRuntime().exec ("ping -c 1 google.com").waitFor() == 0);
+            HttpURLConnection urlc = (HttpURLConnection)
+                    (new URL("http://clients3.google.com/generate_204")
+                            .openConnection());
+            urlc.setRequestProperty("User-Agent", "Android");
+            urlc.setRequestProperty("Connection", "close");
+            urlc.setConnectTimeout(1500);
+            urlc.connect();
+
+            return (urlc.getResponseCode() == 204 &&
+                    urlc.getContentLength() == 0);
+            //return (Runtime.getRuntime().exec ("ping -c 1 google.com").waitFor() == 0);
         }
         catch (Exception ex)
         {

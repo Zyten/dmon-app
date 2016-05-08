@@ -9,6 +9,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -26,6 +28,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.BooleanResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
@@ -46,6 +49,8 @@ public class LoginActivity extends AppCompatActivity implements
     private TextView mIdTokenTextView;
     private String accountId= "", username= "", email = "", sGender ="", birthday = "";
     private Integer gender = -1;
+    Boolean hasInternet = false;
+
 
     //Give your SharedPreferences file a name and save it to a static variable
     public static final String TEMP = "temp";
@@ -175,6 +180,8 @@ public class LoginActivity extends AppCompatActivity implements
 
             boolean profile_complete = getpref.getBoolean("profile_complete", false);
 
+
+
             if(profile_complete)
             {
                 Intent main = new Intent(this, MainActivity.class);
@@ -220,28 +227,23 @@ public class LoginActivity extends AppCompatActivity implements
     public void onClick(View v) {
         //boolean isConnected = intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
 
-        if(isNetworkAvailable()){
-            Log.i ("Tag", "Network Connected");
-            //Toast.makeText(this.getApplicationContext(), "Connected to Network", Toast.LENGTH_LONG).show();
-            if (isInternetAvailable()) {
-                Log.i ("Tag", "Internet Connected");
+            ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            WifiManager manager2 = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+            NetworkInfo networkInfo = manager.getActiveNetworkInfo();
+
+            boolean isAvailable = false;
+            if (networkInfo != null && networkInfo.isConnected()) {
                 switch (v.getId()) {
                     case R.id.btnlogin:
                         getIdToken();
                         break;
                 }
             }
-
-            else {
-                Log.i ("Tag", "No Internet Connection");
+            else
+            {
                 Toast.makeText(this.getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
             }
-        }
-        else {
-            Log.i ("Tag", "Network Not Connected");
-            Toast.makeText(this.getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
-            //Toast.makeText(this.getApplicationContext(), "Not Connected to Network", Toast.LENGTH_LONG).show();
-        }
+
     }
 
     @Override
@@ -273,18 +275,29 @@ public class LoginActivity extends AppCompatActivity implements
 
     }
 
-    private boolean isNetworkAvailable() {
+
+    public boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null;
     }
 
-    private boolean isInternetAvailable()
+    public boolean isInternetAvailable()
     {
         try
         {
-            return (Runtime.getRuntime().exec ("ping -c 1 google.com").waitFor() == 0);
+            HttpURLConnection urlc = (HttpURLConnection)
+                    (new URL("http://clients3.google.com/generate_204")
+                            .openConnection());
+            urlc.setRequestProperty("User-Agent", "Android");
+            urlc.setRequestProperty("Connection", "close");
+            urlc.setConnectTimeout(1500);
+            urlc.connect();
+
+            return (urlc.getResponseCode() == 204 &&
+                    urlc.getContentLength() == 0);
+            //return (Runtime.getRuntime().exec ("ping -c 1 google.com").waitFor() == 0);
         }
         catch (Exception ex)
         {
@@ -292,4 +305,49 @@ public class LoginActivity extends AppCompatActivity implements
         }
         return false;
     }
+
+    class CheckInternet extends AsyncTask<Void, Void, Boolean> {
+
+        private Exception exception;
+
+        protected Boolean doInBackground(Void... a) {
+
+           // View v = urls[0];
+
+            try {
+                if(isNetworkAvailable()){
+                    Log.i ("Tag", "Network Connected");
+                    //Toast.makeText(this.getApplicationContext(), "Connected to Network", Toast.LENGTH_LONG).show();
+                    if (isInternetAvailable()) {
+                        Log.i ("Tag", "Internet Connected");
+                        return true;
+                    }
+
+                    else {
+                        Log.i ("Tag", "No Internet Connection");
+                        //Toast.makeText(this.getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
+                }
+                else {
+                    Log.i ("Tag", "Network Not Connected");
+                    //Toast.makeText(this.getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(this.getApplicationContext(), "Not Connected to Network", Toast.LENGTH_LONG).show();
+                    return false;
+                }
+
+            } catch (Exception e) {
+                this.exception = e;
+                return null;
+            }
+        }
+
+
+
+        protected void onPostExecute() {
+            hasInternet = true;
+        }
+    }
+
 }
+

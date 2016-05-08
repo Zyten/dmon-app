@@ -13,7 +13,7 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".MainActivity"
     tools:showIn="@layout/app_bar_main"
-    android:background="#7fa87f">
+    android:background="#4CAF50">
 
     <android.support.v4.widget.SwipeRefreshLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
@@ -228,7 +228,27 @@
                 android:textColor="#ffffff" />
 
             <TextView
-                android:id="@+id/PrecautionTextView"
+                android:id="@+id/HeartPrecautionTextView"
+                android:gravity="left"
+                android:layout_height="fill_parent"
+                android:layout_width="wrap_content"
+                android:layout_weight="1"
+                android:textSize="20dp"
+                android:maxLines="4"
+                android:textColor="#ffffff"
+                android:text="The air quality outside isn't the best, try to avoid sports activity." />
+            <TextView
+                android:id="@+id/ExercisePrecautionTextView"
+                android:gravity="left"
+                android:layout_height="fill_parent"
+                android:layout_width="wrap_content"
+                android:layout_weight="1"
+                android:textSize="20dp"
+                android:maxLines="4"
+                android:textColor="#ffffff"
+                android:text="The air quality outside isn't the best, try to avoid sports activity." />
+            <TextView
+                android:id="@+id/GeneralPrecautionTextView"
                 android:gravity="left"
                 android:layout_height="fill_parent"
                 android:layout_width="wrap_content"

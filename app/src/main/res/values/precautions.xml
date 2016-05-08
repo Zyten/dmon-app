@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="desc">
+        <item name="excellent_heart">The air quality is ideal for those who have health sensitivities.</item>
+        <item name="excellent_exercise">The air quality is perfect for engaging in outdoor physical activities.</item>
+        <item name="excellent_all">Hooray! The air quality outside is awesome!</item>
+
+        <item name="moderate_heart">There is no real danger for people with health sensitivities.
+            Just keep an eye open for changes in quality for the next few hours.</item>
+        <item name="moderate_exercise">The air quality is perfect for those who have health sensitivities.</item>
+        <item name="moderate_all">The air quality is still good - we\'ll keep you updated if things get worse.</item>
+
+        <item name="unhealthy_heart">There is a slight chance of respiratory distress in people with health sensitivities...
+            Please prepare accordingly.</item>
+        <item name="unhealthy_exercise">Our recommendation: search for a cleaner area for a physical outdoor activity.</item>
+        <item name="unhealthy_all">We\'re not going to tell you not to go outside but you should continue tracking the air quality around you.</item>
+    </string-array>
+
+</resources>
