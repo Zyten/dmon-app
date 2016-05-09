@@ -1,45 +1,26 @@
 package xyz.zyten.rdmon;
 
-import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.annotation.BoolRes;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 public class HealthProfileActivity extends AppCompatActivity{
 
@@ -61,8 +42,6 @@ public class HealthProfileActivity extends AppCompatActivity{
         getSupportActionBar().setTitle("Health Profile");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-
-        findViewById(R.id.category_list);
 
         lv = (ListView)findViewById(R.id.category_list);
 
@@ -115,8 +94,8 @@ public class HealthProfileActivity extends AppCompatActivity{
         hconditionList.addAll( Arrays.asList(hconditions) );
 
         // Set our custom array adapter as the ListView's adapter.
-        listAdapter = new HConditionArrayAdapter(this, hconditionList);
-        lv.setAdapter( listAdapter );
+        listAdapter = new HConditionArrayAdapter(this,  hconditionList);
+        lv.setAdapter( listAdapter);
 
         SharedPreferences gettemppref = getSharedPreferences("temp", Context.MODE_PRIVATE);
         Boolean newUser =  gettemppref.getBoolean("newUser", true);
@@ -195,6 +174,7 @@ public class HealthProfileActivity extends AppCompatActivity{
         public HConditionViewHolder( TextView textView, CheckBox checkBox ) {
             this.checkBox = checkBox ;
             this.textView = textView ;
+            this.textView.setTextColor(Color.WHITE);
         }
         public CheckBox getCheckBox() {
             return checkBox;

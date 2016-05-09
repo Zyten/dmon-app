@@ -2,6 +2,7 @@ package xyz.zyten.rdmon;
 
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -55,9 +56,10 @@ public class MainActivity extends AppCompatActivity
     GoogleApiClient mGoogleApiClient;
     private static final String TAG = "MainActivity";
     protected TextView tempTextView, humidityTextView, dustTextView, APITextView, lastupdateTextView,
-            HeartPrecautionTextView,ExercisePrecautionTextView,GeneralPrecautionTextView;
+            HeartPrecautionTextView,ExercisePrecautionTextView,GeneralPrecautionTextView, AirDescTextView;
     SwipeRefreshLayout swipeRefreshLayout;
     List<Precaution> precautions;
+    Boolean paused = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,6 +96,7 @@ public class MainActivity extends AppCompatActivity
         HeartPrecautionTextView = (TextView) findViewById(R.id.HeartPrecautionTextView);
         ExercisePrecautionTextView = (TextView) findViewById(R.id.ExercisePrecautionTextView);
         GeneralPrecautionTextView = (TextView) findViewById(R.id.GeneralPrecautionTextView);
+        AirDescTextView = (TextView) findViewById(R.id.AirDescTextView);
         //Get precautions desc from xml array
         Resources res = getResources();
         String[] desc = res.getStringArray(R.array.desc);
@@ -106,11 +109,43 @@ public class MainActivity extends AppCompatActivity
                 temp++;
                 precautions.add(new Precaution(i, j, desc[temp]));
             }
-
         //Range ID: 0 - Good, 1 - Moderate, 2 - Unhealthy
         //HealthID: 0 - isSemsitive, 1 - doesExercise, 2 - None
+    }
 
+   @Override
+    public void onPause() {
+        super.onPause();  // Always call the superclass method first
+        //paused = true;
+    }
 
+    @Override
+    protected void onResume(){
+        super.onResume();
+        /*paused = false;
+        //simulate doing something
+        if(!paused)
+            doTheAutoRefresh();*/
+
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();  // Always call the superclass method first
+        paused = true;
+    }
+
+    private final Handler handler = new Handler();
+
+    private void doTheAutoRefresh() {
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                new FetchThingspeakTask().execute();
+                Toast.makeText(MainActivity.this, "Updated", Toast.LENGTH_SHORT).show(); // this is where you put your refresh code
+                doTheAutoRefresh();
+            }
+        }, 15000); //1000 ms = 1 s
     }
 
     SwipeRefreshLayout.OnRefreshListener onRefreshListener = new SwipeRefreshLayout.OnRefreshListener(){
@@ -119,13 +154,14 @@ public class MainActivity extends AppCompatActivity
             //textInfo.setText("WAIT: doing something");
             new FetchThingspeakTask().execute();
 
+
             //simulate doing something
             new Handler().postDelayed(new Runnable() {
 
                 @Override
                 public void run() {
                     swipeRefreshLayout.setRefreshing(false);
-                    //textInfo.setText("DONE");
+                    //Toast.makeText(MainActivity.this, "DONE", Toast.LENGTH_SHORT).show();
                 }
 
             }, 2000);
@@ -394,38 +430,57 @@ public class MainActivity extends AppCompatActivity
                 catch(NullPointerException ex){
                     Log.e("myProfile", ex.getMessage());}
 
-                if(rangeID == 0) {
-                    if (isSensitive == 1)
+                HeartPrecautionTextView.setVisibility(View.GONE);
+                ExercisePrecautionTextView.setVisibility(View.GONE);
+
+                if(rangeID == 0) { //Good
+                    if (isSensitive == 1) {
                         HeartPrecautionTextView.setText(precautions.get(0).getPrecaution());
-                    else if (doesExercise == 1)
-                        HeartPrecautionTextView.setText(precautions.get(1).getPrecaution());
-                    else{
+                        HeartPrecautionTextView.setVisibility(View.VISIBLE);
+                    }
+                    if (doesExercise == 1){
+                        ExercisePrecautionTextView.setText(precautions.get(1).getPrecaution());
+                        ExercisePrecautionTextView.setVisibility(View.VISIBLE);}
+                    if (isSensitive != 1 && doesExercise !=1){
                         HeartPrecautionTextView.setText("");
                         ExercisePrecautionTextView.setText("");
+                        HeartPrecautionTextView.setVisibility(View.GONE);
+                        ExercisePrecautionTextView.setVisibility(View.GONE);
                     }
                     GeneralPrecautionTextView.setText(precautions.get(2).getPrecaution());
+                    AirDescTextView.setText("EXCELLENT AIR QUALITY");
                 }
-                else if(rangeID == 1) {
-                    if (isSensitive == 1)
+                else if(rangeID == 1) { //Moderate
+                    if (isSensitive == 1){
                         HeartPrecautionTextView.setText(precautions.get(3).getPrecaution());
-                    else if (doesExercise == 1)
-                        HeartPrecautionTextView.setText(precautions.get(4).getPrecaution());
-                    else{
+                        HeartPrecautionTextView.setVisibility(View.VISIBLE);}
+                    if (doesExercise == 1) {
+                        ExercisePrecautionTextView.setText(precautions.get(4).getPrecaution());
+                        ExercisePrecautionTextView.setVisibility(View.VISIBLE);}
+                    if (isSensitive != 1 && doesExercise !=1){
                         HeartPrecautionTextView.setText("");
                         ExercisePrecautionTextView.setText("");
+                        HeartPrecautionTextView.setVisibility(View.GONE);
+                        ExercisePrecautionTextView.setVisibility(View.GONE);
                     }
                     GeneralPrecautionTextView.setText(precautions.get(5).getPrecaution());
+                    AirDescTextView.setText("MODERATE AIR QUALITY");
                 }
-                else if(rangeID == 2) {
-                    if (isSensitive == 1)
+                else if(rangeID == 2) { //Unhealthy
+                    if (isSensitive == 1) {
                         HeartPrecautionTextView.setText(precautions.get(6).getPrecaution());
-                    else if (doesExercise == 1)
-                        HeartPrecautionTextView.setText(precautions.get(7).getPrecaution());
-                    else{
+                        HeartPrecautionTextView.setVisibility(View.VISIBLE);}
+                    if (doesExercise == 1) {
+                        ExercisePrecautionTextView.setText(precautions.get(7).getPrecaution());
+                        ExercisePrecautionTextView.setVisibility(View.VISIBLE);}
+                    if (isSensitive != 1 && doesExercise !=1){
                         HeartPrecautionTextView.setText("");
                         ExercisePrecautionTextView.setText("");
+                        HeartPrecautionTextView.setVisibility(View.GONE);
+                        ExercisePrecautionTextView.setVisibility(View.GONE);
                     }
                     GeneralPrecautionTextView.setText(precautions.get(8).getPrecaution());
+                    AirDescTextView.setText("UNHEALTHY AIR QUALITY");
                 }
                 else
                     Log.d("Tag", "Invalid rangeID");

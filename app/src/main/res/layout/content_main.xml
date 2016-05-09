@@ -31,6 +31,8 @@
                 android:layout_height="match_parent"
                 android:clickable="true"
                 android:orientation="vertical"
+                android:layout_marginTop="-30dp"
+                android:layout_marginBottom="-30dp"
                 android:gravity="top">
 
             <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -51,17 +53,21 @@
             android:layout_alignParentStart="true"
             android:background="@null"
             android:padding="0dp"
+            android:layout_marginTop="-3dp"
             android:id="@+id/linearLayout">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="154dp"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="-"
-                android:textSize="140dp"
+                android:textSize="90sp"
                 android:padding="0dp"
+                android:layout_marginTop="25dp"
+                android:layout_marginBottom="-25dp"
                 android:id="@+id/APITextView"
                 android:textColor="#ffffff"
-                android:layout_gravity="center" />
+                android:layout_gravity="center"
+                android:gravity="center_vertical"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -190,43 +196,88 @@
                 </LinearLayout>
                 </LinearLayout>
 
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:layout_marginTop="39dp"
+                    android:orientation="horizontal"
+                    android:weightSum="1"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="3dp"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="5dp"
+                    android:background ="#5CBA60"
+                    xmlns:custom="http://schemas.android.com/apk/res-auto">
+                    <com.github.pwittchen.weathericonview.WeatherIconView
+                        android:id="@+id/air_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.2"
+                        android:layout_gravity="center"
+                        android:layout_marginRight="8dp"
+                        custom:weatherIconResource="@string/wi_fog"
+                        custom:weatherIconColor="@android:color/white"
+                        custom:weatherIconSize="20" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.8"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:textStyle="bold"
+                        android:layout_marginTop="3dp"
+                        android:textSize="22dp"
+                        android:text=""
+                        android:id="@+id/AirDescTextView"
+                        android:textColor="#ffffff"
+                        android:layout_gravity="center" />
+                </LinearLayout>
+
+                <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:orientation="vertical"
+                android:weightSum="3"
+                android:id="@+id/linearLayout2"
+                android:layout_below="@+id/linearLayout"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="3dp"
+                android:layout_marginTop="25dp">
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:paddingLeft="5dp"
+                android:paddingRight="3dp"
+                android:layout_gravity="center"
+                android:layout_marginRight="9dp"
+                android:background ="#5CBA60"
+                android:orientation="horizontal">
+                <ImageView android:id="@+id/ImageSearch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="25dp"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="-8dp"
+                    android:src="@drawable/info_w"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginTop="39dp"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textStyle="bold"
-                    android:textSize="24dp"
-                    android:text="MODERATE AIR QUALITY"
-                    android:id="@+id/AirDescTextView"
-                    android:textColor="#ffffff"
-                    android:layout_gravity="center" />
+                    android:text="What you should do:"
+                    android:id="@+id/PrecautionTitleTextView"
+                    android:textColor="#ffffff" />
+            </LinearLayout>
 
-                <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:orientation="vertical"
-            android:weightSum="3"
-            android:background ="#55676767"
-            android:id="@+id/linearLayout2"
-            android:layout_below="@+id/linearLayout"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginLeft="18dp"
-            android:layout_marginRight="18dp"
-            android:layout_marginTop="39dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="What you should do:"
-                android:id="@+id/PrecautionTitleTextView"
-                android:textColor="#ffffff" />
-
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="20dp">
+            </LinearLayout>
             <TextView
                 android:id="@+id/HeartPrecautionTextView"
                 android:gravity="left"
@@ -236,7 +287,11 @@
                 android:textSize="20dp"
                 android:maxLines="4"
                 android:textColor="#ffffff"
-                android:text="The air quality outside isn't the best, try to avoid sports activity." />
+                android:text="-" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="10dp">
+            </LinearLayout>
             <TextView
                 android:id="@+id/ExercisePrecautionTextView"
                 android:gravity="left"
@@ -246,7 +301,11 @@
                 android:textSize="20dp"
                 android:maxLines="4"
                 android:textColor="#ffffff"
-                android:text="The air quality outside isn't the best, try to avoid sports activity." />
+                android:text="-" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="10dp">
+            </LinearLayout>
             <TextView
                 android:id="@+id/GeneralPrecautionTextView"
                 android:gravity="left"
@@ -256,7 +315,7 @@
                 android:textSize="20dp"
                 android:maxLines="4"
                 android:textColor="#ffffff"
-                android:text="The air quality outside isn't the best, try to avoid sports activity." />
+                android:text="-" />
         </LinearLayout>
 
             </LinearLayout>
