@@ -1,41 +1,35 @@
 package xyz.zyten.rdmon;
 
-import android.app.DatePickerDialog;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Color;
+import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
-import android.widget.DatePicker;
-import android.widget.EditText;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.LinearLayout;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
-
-public class HistoryActivity extends AppCompatActivity{
+public class HistoryActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "HistoryActivity";
-    private WebView mWebView;
+    private WebView mWebView = null;
+    private LinearLayout mlLayoutRequestError = null;
+    private Handler mhErrorLayoutHide;
+    private final String URL = "http://www.google.com";
+    private boolean mbErrorOccured = false;
+    private boolean mbReloadPressed = false;
 
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,28 +41,12 @@ public class HistoryActivity extends AppCompatActivity{
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
+        ((Button) findViewById(R.id.btnRetry)).setOnClickListener(this);
+        mlLayoutRequestError = (LinearLayout) findViewById(R.id.lLayoutRequestError);
+        mhErrorLayoutHide = getErrorLayoutHideHandler();
+
         initWebView();
 
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        try {
-            WebView.class.getMethod("onResume").invoke(mWebView);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        try {
-            WebView.class.getMethod("onPause").invoke(mWebView);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     private void initWebView() {
@@ -76,21 +54,18 @@ public class HistoryActivity extends AppCompatActivity{
         //mWebView.setBackgroundColor(Color.TRANSPARENT);
         // WebViewの設定
         WebSettings settings = mWebView.getSettings();
+        mWebView.setWebViewClient(new MyWebViewClient());
         settings.setJavaScriptEnabled(true);
-        settings.setAllowFileAccess(true);
-        if (Build.VERSION.SDK_INT > 7) {
-            settings.setPluginState(WebSettings.PluginState.ON);
-        } else {
-            settings.setPluginState(WebSettings.PluginState.ON);
-        }
-
+        //settings.setAllowFileAccess(true);
 
         String html = "";
         html += "<html><body>";
         html += "<iframe width=\"315\" height=\"230\" src=\"https://api.thingspeak.com/channels/108012/charts/4?&results=15&dynamic=&width=320&title=API History\" frameborder=\"0\" allowfullscreen></iframe>";
         html += "</body></html>";
 
-        mWebView.loadData(html, "text/html", null);
+        mWebView.setWebChromeClient(getChromeClient());
+        //mWebView.loadData(html, "text/html", null);
+        mWebView.loadUrl(URL);
     }
 
     @Override
@@ -104,6 +79,90 @@ public class HistoryActivity extends AppCompatActivity{
             finish();}
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        return super.onSupportNavigateUp();
+    }
+
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+
+        if (id == R.id.btnRetry) {
+            if (!mbErrorOccured) {
+                return;
+            }
+
+            mbReloadPressed = true;
+            mWebView.reload();
+            mbErrorOccured = false;
+        }
+    }
+    class MyWebViewClient extends WebViewClient {
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            return super.shouldOverrideUrlLoading(view, url);
+        }
+
+        @Override
+        public void onPageStarted(WebView view, String url, Bitmap favicon) {
+            super.onPageStarted(view, url, favicon);
+        }
+
+        @Override
+        public void onLoadResource(WebView view, String url) {
+            super.onLoadResource(view, url);
+        }
+
+        @Override
+        public void onPageFinished(WebView view, String url) {
+            if (mbErrorOccured == false && mbReloadPressed) {
+                hideErrorLayout();
+                mbReloadPressed = false;
+            }
+
+            super.onPageFinished(view, url);
+        }
+
+        @Override
+        public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+            mbErrorOccured = true;
+            showErrorLayout();
+            super.onReceivedError(view, errorCode, description, failingUrl);
+        }
+    }
+
+    private WebChromeClient getChromeClient() {
+        final ProgressDialog progressDialog = new ProgressDialog(HistoryActivity.this);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progressDialog.setCancelable(false);
+
+        return new WebChromeClient() {
+            @Override
+            public void onProgressChanged(WebView view, int newProgress) {
+                super.onProgressChanged(view, newProgress);
+            }
+        };
+    }
+
+    private void showErrorLayout() {
+        mlLayoutRequestError.setVisibility(View.VISIBLE);
+    }
+
+    private void hideErrorLayout() {
+        mhErrorLayoutHide.sendEmptyMessageDelayed(10000, 200);
+    }
+
+    private Handler getErrorLayoutHideHandler() {
+        return new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                mlLayoutRequestError.setVisibility(View.GONE);
+                super.handleMessage(msg);
+            }
+        };
     }
 }
 

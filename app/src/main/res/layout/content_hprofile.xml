@@ -13,23 +13,28 @@
     tools:showIn="@layout/app_bar_hprofile"
     android:background="#009688">
 
-    <Button
-        android:layout_width="100dp"
-        android:layout_height="40dp"
-        android:id="@+id/btnsave1"
-        android:layout_marginBottom="102dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:onClick="save"
-        android:background="@drawable/btnsave1" />
 
-    <!--<ListView
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/listView"
-        android:layout_below="@+id/relativeLayout"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />-->
+        android:layout_marginBottom="102dp"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/btnsave"
+        android:text="SAVE"
+        android:textColor="#FFF"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textStyle="bold"
+        android:textSize="20dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:paddingRight="15dp"
+        android:paddingLeft="15dp"
+        android:layout_marginTop="50dp"
+        android:background="#00796B"
+        android:layout_centerHorizontal="true"
+
+        android:onClick="save"/>
+
     <ListView
         android:id="@+id/category_list"
         android:layout_width="fill_parent"

@@ -97,6 +97,12 @@ public class MainActivity extends AppCompatActivity
         ExercisePrecautionTextView = (TextView) findViewById(R.id.ExercisePrecautionTextView);
         GeneralPrecautionTextView = (TextView) findViewById(R.id.GeneralPrecautionTextView);
         AirDescTextView = (TextView) findViewById(R.id.AirDescTextView);
+
+        View HeartPrecaution = findViewById(R.id.HeartPrecaution);
+        View ExercisePrecaution = findViewById(R.id.ExercisePrecaution);
+        HeartPrecaution.setVisibility(View.GONE);
+        ExercisePrecaution.setVisibility(View.GONE);
+
         //Get precautions desc from xml array
         Resources res = getResources();
         String[] desc = res.getStringArray(R.array.desc);
@@ -430,22 +436,24 @@ public class MainActivity extends AppCompatActivity
                 catch(NullPointerException ex){
                     Log.e("myProfile", ex.getMessage());}
 
-                HeartPrecautionTextView.setVisibility(View.GONE);
-                ExercisePrecautionTextView.setVisibility(View.GONE);
+                View HeartPrecaution = findViewById(R.id.HeartPrecaution);
+                View ExercisePrecaution = findViewById(R.id.ExercisePrecaution);
+                HeartPrecaution.setVisibility(View.GONE);
+                ExercisePrecaution.setVisibility(View.GONE);
 
                 if(rangeID == 0) { //Good
                     if (isSensitive == 1) {
                         HeartPrecautionTextView.setText(precautions.get(0).getPrecaution());
-                        HeartPrecautionTextView.setVisibility(View.VISIBLE);
+                        HeartPrecaution.setVisibility(View.VISIBLE);
                     }
                     if (doesExercise == 1){
                         ExercisePrecautionTextView.setText(precautions.get(1).getPrecaution());
-                        ExercisePrecautionTextView.setVisibility(View.VISIBLE);}
+                        ExercisePrecaution.setVisibility(View.VISIBLE);}
                     if (isSensitive != 1 && doesExercise !=1){
                         HeartPrecautionTextView.setText("");
                         ExercisePrecautionTextView.setText("");
-                        HeartPrecautionTextView.setVisibility(View.GONE);
-                        ExercisePrecautionTextView.setVisibility(View.GONE);
+                        HeartPrecaution.setVisibility(View.GONE);
+                        ExercisePrecaution.setVisibility(View.GONE);
                     }
                     GeneralPrecautionTextView.setText(precautions.get(2).getPrecaution());
                     AirDescTextView.setText("EXCELLENT AIR QUALITY");
@@ -453,15 +461,15 @@ public class MainActivity extends AppCompatActivity
                 else if(rangeID == 1) { //Moderate
                     if (isSensitive == 1){
                         HeartPrecautionTextView.setText(precautions.get(3).getPrecaution());
-                        HeartPrecautionTextView.setVisibility(View.VISIBLE);}
+                        HeartPrecaution.setVisibility(View.VISIBLE);}
                     if (doesExercise == 1) {
                         ExercisePrecautionTextView.setText(precautions.get(4).getPrecaution());
-                        ExercisePrecautionTextView.setVisibility(View.VISIBLE);}
+                        ExercisePrecaution.setVisibility(View.VISIBLE);}
                     if (isSensitive != 1 && doesExercise !=1){
                         HeartPrecautionTextView.setText("");
                         ExercisePrecautionTextView.setText("");
-                        HeartPrecautionTextView.setVisibility(View.GONE);
-                        ExercisePrecautionTextView.setVisibility(View.GONE);
+                        HeartPrecaution.setVisibility(View.GONE);
+                        ExercisePrecaution.setVisibility(View.GONE);
                     }
                     GeneralPrecautionTextView.setText(precautions.get(5).getPrecaution());
                     AirDescTextView.setText("MODERATE AIR QUALITY");
@@ -472,12 +480,12 @@ public class MainActivity extends AppCompatActivity
                         HeartPrecautionTextView.setVisibility(View.VISIBLE);}
                     if (doesExercise == 1) {
                         ExercisePrecautionTextView.setText(precautions.get(7).getPrecaution());
-                        ExercisePrecautionTextView.setVisibility(View.VISIBLE);}
+                        ExercisePrecaution.setVisibility(View.VISIBLE);}
                     if (isSensitive != 1 && doesExercise !=1){
                         HeartPrecautionTextView.setText("");
                         ExercisePrecautionTextView.setText("");
-                        HeartPrecautionTextView.setVisibility(View.GONE);
-                        ExercisePrecautionTextView.setVisibility(View.GONE);
+                        HeartPrecaution.setVisibility(View.GONE);
+                        ExercisePrecaution.setVisibility(View.GONE);
                     }
                     GeneralPrecautionTextView.setText(precautions.get(8).getPrecaution());
                     AirDescTextView.setText("UNHEALTHY AIR QUALITY");
