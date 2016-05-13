@@ -19,7 +19,6 @@ public class LauncherActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-
         gettemppref = getSharedPreferences(LoginActivity.TEMP, 0);
         boolean logged_in = gettemppref.getBoolean("logged_in", false);
 

@@ -19,13 +19,14 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 
-public class UpdateHealthProfileActivity extends AsyncTask<Integer, Void, String> {
+public class UpdateHealthProfileTask extends AsyncTask<Integer, Void, String> {
 
     private Context context;
     private Integer isSensitive, doesExercise;
     private String googleID;
+    String TAG = "UpdateHealthActivityTask";
 
-    public UpdateHealthProfileActivity(Context context) {
+    public UpdateHealthProfileTask(Context context) {
         this.context = context;
     }
 
@@ -46,25 +47,13 @@ public class UpdateHealthProfileActivity extends AsyncTask<Integer, Void, String
         Log.d("TAG", isSensitive.toString());
         Log.d("TAG", doesExercise.toString());
 
-        String link;
-        String data;
-        BufferedReader bufferedReader;
-        String result;
-
-        try {
-            data = "?isSensitive=" + URLEncoder.encode(isSensitive.toString(), "UTF-8");
-            data += "&doesExercise=" + URLEncoder.encode(doesExercise.toString(), "UTF-8");
-            data += "&googleID=" + URLEncoder.encode(googleID, "UTF-8");
-
-            link = "http://zyten.xyz/testo/updateHProfile.php" + data;
-            URL url = new URL(link);
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-
-            bufferedReader = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            result = bufferedReader.readLine();
-            return result;
-        } catch (Exception e) {
-            return new String("Exception: " + e.getMessage());
+        if(MainActivity.InternetAvailable) {
+            Log.i (TAG, "Internet Connected");
+            return UpdateHealthProfile();
+        }
+        else {
+            Log.i ("Tag", "Internet Not Connected");
+            return "no_internet";
         }
     }
 
@@ -72,7 +61,10 @@ public class UpdateHealthProfileActivity extends AsyncTask<Integer, Void, String
     protected void onPostExecute(String result) {
         String jsonStr = result;
         if (jsonStr != null) {
-
+            if(jsonStr == "no_internet") {
+                Toast.makeText(context, "Changes were not saved.", Toast.LENGTH_SHORT).show();
+                return;
+            }
             try {
                 JSONObject jsonObj = new JSONObject(jsonStr);
                 String query_result = jsonObj.getString("query_result");
@@ -97,6 +89,29 @@ public class UpdateHealthProfileActivity extends AsyncTask<Integer, Void, String
             }
         } else {
             Toast.makeText(context, "Couldn't get any JSON data.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private String UpdateHealthProfile(){
+        String link;
+        String data;
+        BufferedReader bufferedReader;
+        String result;
+
+        try {
+            data = "?isSensitive=" + URLEncoder.encode(isSensitive.toString(), "UTF-8");
+            data += "&doesExercise=" + URLEncoder.encode(doesExercise.toString(), "UTF-8");
+            data += "&googleID=" + URLEncoder.encode(googleID, "UTF-8");
+
+            link = "http://zyten.xyz/testo/updateHProfile.php" + data;
+            URL url = new URL(link);
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+
+            bufferedReader = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            result = bufferedReader.readLine();
+            return result;
+        } catch (Exception e) {
+            return new String("Exception: " + e.getMessage());
         }
     }
 }

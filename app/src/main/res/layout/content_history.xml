@@ -24,20 +24,21 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerInParent="true"
-        android:background="@color/white"
+        android:background="@color/colorPrimary"
         android:gravity="center"
         android:orientation="vertical"
-        android:visibility="gone" >
+        android:visibility="gone">
 
         <Button
             android:id="@+id/btnRetry"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:minWidth="120dp"
             android:text="RELOAD"
             android:textSize="20dp"
-            android:textStyle="bold" />
+            android:theme="@style/MyButton"
+            android:textColor="#FFF"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textStyle="bold"/>
     </LinearLayout>
 
 

@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebChromeClient;
@@ -18,6 +19,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 public class HistoryActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -25,7 +27,7 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
     private WebView mWebView = null;
     private LinearLayout mlLayoutRequestError = null;
     private Handler mhErrorLayoutHide;
-    private final String URL = "http://www.google.com";
+    private final String URL = "https://api.thingspeak.com/channels/108012/charts/4?&results=15&dynamic=&width=320&title=API History";
     private boolean mbErrorOccured = false;
     private boolean mbReloadPressed = false;
 
@@ -44,29 +46,21 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
         ((Button) findViewById(R.id.btnRetry)).setOnClickListener(this);
         mlLayoutRequestError = (LinearLayout) findViewById(R.id.lLayoutRequestError);
         mhErrorLayoutHide = getErrorLayoutHideHandler();
-
         initWebView();
 
     }
 
     private void initWebView() {
         mWebView = (WebView) findViewById(R.id.webView);
-        //mWebView.setBackgroundColor(Color.TRANSPARENT);
-        // WebViewの設定
+
         WebSettings settings = mWebView.getSettings();
         mWebView.setWebViewClient(new MyWebViewClient());
         settings.setJavaScriptEnabled(true);
-        //settings.setAllowFileAccess(true);
-
-        String html = "";
-        html += "<html><body>";
-        html += "<iframe width=\"315\" height=\"230\" src=\"https://api.thingspeak.com/channels/108012/charts/4?&results=15&dynamic=&width=320&title=API History\" frameborder=\"0\" allowfullscreen></iframe>";
-        html += "</body></html>";
 
         mWebView.setWebChromeClient(getChromeClient());
-        //mWebView.loadData(html, "text/html", null);
         mWebView.loadUrl(URL);
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -91,15 +85,23 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
         int id = v.getId();
 
         if (id == R.id.btnRetry) {
-            if (!mbErrorOccured) {
-                return;
-            }
+            if(MainActivity.InternetAvailable) {
+                Log.i (TAG, "Internet Connected");
+                if (!mbErrorOccured) {
+                    return;
+                }
 
-            mbReloadPressed = true;
-            mWebView.reload();
-            mbErrorOccured = false;
+                mbReloadPressed = true;
+                mWebView.reload();
+                mbErrorOccured = false;
+            }
+            else{
+                Log.i ("Tag", "Internet Not Connected");
+                Toast.makeText(HistoryActivity.this, "No Internet Connection", Toast.LENGTH_SHORT).show();
+            }
         }
     }
+
     class MyWebViewClient extends WebViewClient {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -165,80 +167,3 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
         };
     }
 }
-
-
-
-/*package xyz.zyten.rdmon;
-
-import android.os.Build;
-import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-
-/**
- * Created by zyten on 2/5/2016.
- *//*
-public class HistoryActivity extends AppCompatActivity{
-*//*
-    private static final String TAG = "HistoryActivity";
-    private WebView mWebView;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_history);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Personal Profile");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-
-        initWebView();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        try {
-            WebView.class.getMethod("onResume").invoke(mWebView);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        try {
-            WebView.class.getMethod("onPause").invoke(mWebView);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void initWebView() {
-        mWebView = (WebView) findViewById(R.id.webView);
-
-        // WebViewの設定
-        WebSettings settings = mWebView.getSettings();
-        settings.setJavaScriptEnabled(true);
-        settings.setAllowFileAccess(true);
-        if (Build.VERSION.SDK_INT > 7) {
-            settings.setPluginState(WebSettings.PluginState.ON);
-        } else {
-            settings.setPluginState(WebSettings.PluginState.ON);
-        }
-
-
-        String html = "";
-        html += "<html><body>";
-        html += "<iframe width=\"350\" height=\"315\" src=\"https://api.thingspeak.com/channels/108012/charts/4?&results=15&dynamic=true&width=350&title=API History&bgcolor=#F5F6F6\" frameborder=\"0\" allowfullscreen></iframe>";
-        html += "</body></html>";
-
-        mWebView.loadData(html, "text/html", null);
-    }
-}
-*/

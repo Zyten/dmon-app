@@ -23,4 +23,9 @@
         <item name="android:backgroundDimEnabled">false</item>
     </style>
 
+    <style name="MyButton" parent="Theme.AppCompat.Light">
+        <item name="colorControlHighlight">@color/colorPrimaryDouble</item>
+        <item name="colorButtonNormal">@color/colorPrimaryDark</item>
+    </style>
+
 </resources>

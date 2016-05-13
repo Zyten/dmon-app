@@ -29,7 +29,6 @@ public class HealthProfileActivity extends AppCompatActivity{
     private HCondition[] hconditions ;
     private ArrayAdapter<HCondition> listAdapter ;
     private static ArrayList<HCondition> hconditionList;
-//    SharedPreferences settings = getSharedPreferences("settings", MODE_PRIVATE);
     public static Integer isSensitive = 0, doesExercise = 0;
 
     @Override
@@ -37,12 +36,49 @@ public class HealthProfileActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_hprofile);
 
+        initLayout();
+        initViews();
+
+        SharedPreferences gettemppref = getSharedPreferences("temp", Context.MODE_PRIVATE);
+        Boolean newUser =  gettemppref.getBoolean("newUser", true);
+        if(!newUser)
+        {
+            SharedPreferences settings = getSharedPreferences("settings", Context.MODE_PRIVATE);
+
+            if(settings.getInt("isSensitive", -1) == 0 || settings.getInt("isSensitive", -1) == 1)
+                isSensitive = settings.getInt("isSensitive", -1);
+
+            if(settings.getInt("doesExercise", -1) == 0 || settings.getInt("doesExercise", -1) == 1)
+                doesExercise = settings.getInt("doesExercise", -1);
+        }
+
+        Boolean stat0 = false, stat1 =false;
+
+        if(isSensitive == 1){
+            stat0 = true;
+        }
+
+        if(doesExercise == 1){
+            stat1 = true;
+        }
+
+        for(HCondition h : hconditionList){
+            if(h.getID() == 0)
+                h.setChecked(stat0);
+            if(h.getID() == 1)
+                h.setChecked(stat1);
+        }
+    }
+
+    private void initLayout(){
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Health Profile");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+    }
 
+    private void initViews(){
         lv = (ListView)findViewById(R.id.category_list);
 
         // When item is tapped, toggle checked properties of CheckBox and HCondition.
@@ -83,51 +119,18 @@ public class HealthProfileActivity extends AppCompatActivity{
 
         // Create and populate hconditions.
         //hconditions = (HCondition[]) getLastCustomNonConfigurationInstance() ;
-        //if ( hconditions == null ) {
-            hconditions = new HCondition[] {
-                    new HCondition("I have health sensitivities related to\n heart or respiratory organs", 0),
-                    new HCondition("Exercising outside is a significant \npart of my life", 1),
-                   // new HCondition("None of the above", 2)
-            };
-       // }
+        hconditions = new HCondition[] {
+                new HCondition("I have health sensitivities related to\n heart or respiratory organs", 0),
+                new HCondition("Exercising outside is a significant \npart of my life", 1),
+                // new HCondition("None of the above", 2)
+        };
         hconditionList = new ArrayList<HCondition>();
         hconditionList.addAll( Arrays.asList(hconditions) );
 
         // Set our custom array adapter as the ListView's adapter.
         listAdapter = new HConditionArrayAdapter(this,  hconditionList);
         lv.setAdapter( listAdapter);
-
-        SharedPreferences gettemppref = getSharedPreferences("temp", Context.MODE_PRIVATE);
-        Boolean newUser =  gettemppref.getBoolean("newUser", true);
-        if(!newUser)
-        {
-            SharedPreferences settings = getSharedPreferences("settings", Context.MODE_PRIVATE);
-
-            if(settings.getInt("isSensitive", -1) == 0 || settings.getInt("isSensitive", -1) == 1)
-                isSensitive = settings.getInt("isSensitive", -1);
-
-            if(settings.getInt("doesExercise", -1) == 0 || settings.getInt("doesExercise", -1) == 1)
-                doesExercise = settings.getInt("doesExercise", -1);
-        }
-
-        Boolean stat0 = false, stat1 =false;
-
-        if(isSensitive == 1){
-            stat0 = true;
-        }
-
-        if(doesExercise == 1){
-            stat1 = true;
-        }
-
-        for(HCondition h : hconditionList){
-            if(h.getID() == 0)
-                h.setChecked(stat0);
-            if(h.getID() == 1)
-                h.setChecked(stat1);
-        }
     }
-
 
     /** Holds hcondition data. */
     private static class HCondition {
@@ -295,7 +298,7 @@ public class HealthProfileActivity extends AppCompatActivity{
     //Submit to remote db
     public void save(View v) {
 
-            new UpdateHealthProfileActivity(this).execute(isSensitive, doesExercise);
+            new UpdateHealthProfileTask(this).execute(isSensitive, doesExercise);
 
             Intent main = new Intent(HealthProfileActivity.this, MainActivity.class);
             main.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);

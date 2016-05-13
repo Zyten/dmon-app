@@ -1,24 +1,21 @@
 package xyz.zyten.rdmon;
 
-import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.RadioButton;
@@ -26,11 +23,8 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
 
 public class ProfileActivity extends AppCompatActivity{
 
@@ -39,24 +33,19 @@ public class ProfileActivity extends AppCompatActivity{
     private RadioGroup radioSexGroup;
     private RadioButton rbMale, rbFemale;
     private String genderVal, birthdayVal;
+    String googleID = "";
+    String username = "";
+    String sGender = "";
+    String birthday = "";
+    String hometown = "";
+    String currResidence = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Personal Profile");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-
-        String googleID = "";
-        String username = "";
-        String sGender = "";
-        String birthday = "";
-        String hometown = "";
-        String currResidence = "";
+        initLayout();
 
         SharedPreferences gettemppref = getSharedPreferences("temp", Context.MODE_PRIVATE);
         Boolean newUser =  gettemppref.getBoolean("newUser", true);
@@ -82,6 +71,46 @@ public class ProfileActivity extends AppCompatActivity{
             currResidence = getpref.getString("currResidence", "");
         }
 
+        initViews();
+
+        initInputValidators();
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        if (id==android.R.id.home) {
+            finish();}
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        //Handle the back button
+        if(keyCode == KeyEvent.KEYCODE_BACK) {
+            ProfileActivity.this.finish();
+            return true;
+        }
+        else {
+            return super.onKeyDown(keyCode, event);
+        }
+    }
+
+    private void initLayout(){
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Personal Profile");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+    }
+
+    private void initViews(){
         //initialize RadioGroup and RadioButton
         radioSexGroup = (RadioGroup) findViewById(R.id.radioSex);
         radioSexGroup.clearCheck();
@@ -116,7 +145,9 @@ public class ProfileActivity extends AppCompatActivity{
 
         hometownEditText.setText(hometown);
         currResidenceEditText.setText(currResidence);
+    }
 
+    private void initInputValidators(){
         // TextWatcher would let us check validation error on the fly
         usernameEditText.addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(Editable s) {
@@ -180,7 +211,6 @@ public class ProfileActivity extends AppCompatActivity{
                 return false;
             }
         });
-
     }
 
     //Datetime picker
@@ -195,7 +225,7 @@ public class ProfileActivity extends AppCompatActivity{
             myCalendar.set(Calendar.YEAR, year);
             myCalendar.set(Calendar.MONTH, monthOfYear);
             myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-            updateLabel();
+            updateBirthday();
         }
     };
 
@@ -209,11 +239,10 @@ public class ProfileActivity extends AppCompatActivity{
             String currResidence = currResidenceEditText.getText().toString();
             String googleID = accountIdTextView.getText().toString();
             String gender = genderVal;
-            //Toast.makeText(this, username+" "+birthday+" "+hometown+" "+currResidence+" "+googleID+" "+gender, Toast.LENGTH_LONG).show();
-            //Toast.makeText(this, "Saving..", Toast.LENGTH_SHORT).show();
+
+            new UpdateProfileTask(this).execute(username, gender, birthday, hometown, currResidence, googleID);
 
 
-            new UpdateProfileActivity(this).execute(username, gender, birthday, hometown, currResidence, googleID);
 
             Intent main = new Intent(ProfileActivity.this, MainActivity.class);
             main.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -223,7 +252,7 @@ public class ProfileActivity extends AppCompatActivity{
             Toast.makeText(ProfileActivity.this, "Make sure all fields are filled correctly.", Toast.LENGTH_LONG).show();
     }
 
-    private void updateLabel() {
+    private void updateBirthday() {
 
         String myFormat = "dd/MM/yyyy"; //In which you need put here
         SimpleDateFormat fmtOut = new SimpleDateFormat(myFormat);
@@ -249,30 +278,5 @@ public class ProfileActivity extends AppCompatActivity{
         if (!Validation.isChecked(radioSexGroup)) ret = false;
 
         return ret;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        if (id==android.R.id.home) {
-            finish();}
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        //Handle the back button
-        if(keyCode == KeyEvent.KEYCODE_BACK) {
-            ProfileActivity.this.finish();
-            return true;
-        }
-        else {
-            return super.onKeyDown(keyCode, event);
-        }
     }
 }

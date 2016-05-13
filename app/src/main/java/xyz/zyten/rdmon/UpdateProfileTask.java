@@ -7,7 +7,12 @@ package xyz.zyten.rdmon;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import org.json.JSONException;
@@ -19,12 +24,14 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 
-public class UpdateProfileActivity extends AsyncTask<String, Void, String> {
+public class UpdateProfileTask extends AsyncTask<String, Void, String> {
     private Context context;
+    private CoordinatorLayout coordinatorLayout;
+    String TAG ="UpdateProfile";
 
     String username, gender, birthday, hometown, currResidence, googleID;
 
-    public UpdateProfileActivity(Context context) {
+    public UpdateProfileTask(Context context) {
         this.context = context;
     }
 
@@ -41,28 +48,13 @@ public class UpdateProfileActivity extends AsyncTask<String, Void, String> {
         currResidence = arg0[4];
         googleID = arg0[5];
 
-        String link;
-        String data;
-        BufferedReader bufferedReader;
-        String result;
-
-        try {
-            data = "?username=" + URLEncoder.encode(username, "UTF-8");
-            data += "&gender=" + URLEncoder.encode(gender, "UTF-8");
-            data += "&birthday=" + URLEncoder.encode(birthday, "UTF-8");
-            data += "&hometown=" + URLEncoder.encode(hometown, "UTF-8");
-            data += "&currResidence=" + URLEncoder.encode(currResidence, "UTF-8");
-            data += "&googleID=" + URLEncoder.encode(googleID, "UTF-8");
-
-            link = "http://zyten.xyz/testo/updateProfile.php" + data;
-            URL url = new URL(link);
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-
-            bufferedReader = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            result = bufferedReader.readLine();
-            return result;
-        } catch (Exception e) {
-            return new String("Exception: " + e.getMessage());
+        if(MainActivity.InternetAvailable) {
+            Log.i (TAG, "Internet Connected");
+            return updateProfile();
+        }
+        else {
+            Log.i ("Tag", "Internet Not Connected");
+            return "no_internet";
         }
     }
 
@@ -70,7 +62,10 @@ public class UpdateProfileActivity extends AsyncTask<String, Void, String> {
     protected void onPostExecute(String result) {
         String jsonStr = result;
         if (jsonStr != null) {
-
+            if(jsonStr == "no_internet") {
+                Toast.makeText(context, "Changes were not saved.", Toast.LENGTH_SHORT).show();
+                return;
+            }
             try {
                 JSONObject jsonObj = new JSONObject(jsonStr);
                 String query_result = jsonObj.getString("query_result");
@@ -105,6 +100,33 @@ public class UpdateProfileActivity extends AsyncTask<String, Void, String> {
             }
         } else {
             Toast.makeText(context, "Couldn't get any JSON data.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private String updateProfile(){
+
+        String link;
+        String data;
+        BufferedReader bufferedReader;
+        String result;
+
+        try {
+            data = "?username=" + URLEncoder.encode(username, "UTF-8");
+            data += "&gender=" + URLEncoder.encode(gender, "UTF-8");
+            data += "&birthday=" + URLEncoder.encode(birthday, "UTF-8");
+            data += "&hometown=" + URLEncoder.encode(hometown, "UTF-8");
+            data += "&currResidence=" + URLEncoder.encode(currResidence, "UTF-8");
+            data += "&googleID=" + URLEncoder.encode(googleID, "UTF-8");
+
+            link = "http://zyten.xyz/testo/updateProfile.php" + data;
+            URL url = new URL(link);
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+
+            bufferedReader = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            result = bufferedReader.readLine();
+            return result;
+        } catch (Exception e) {
+            return new String("Exception: " + e.getMessage());
         }
     }
 }
