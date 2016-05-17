@@ -4,11 +4,20 @@
     <color name="colorPrimaryDouble">#00594B</color>
     <color name="colorPrimaryDark">#00796B</color>
     <color name="colorAccent">#B2DFDB</color>
+
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
     <color name="transparent">#00000000</color>
-    <color name="mgreen">#2CCA90</color>
-    <color name="myellow">#EEE657</color>
-    <color name="mblue">#2B82C9</color>
 
+    <color name="tgreen">#388E3C</color>
+    <color name="mgreen">#4CAF50</color>
+    <color name="descgreen">#5CBA60</color>
+
+    <color name="tyellow">#FFA000</color>
+    <color name="myellow">#FFC107</color>
+    <color name="descyellow">#DFB107</color>
+
+    <color name="tblue">#1976D2</color>
+    <color name="mblue">#2196F3</color>
+    <color name="descblue">#0176D3</color>
 </resources>

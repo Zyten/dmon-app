@@ -1,15 +1,24 @@
 package xyz.zyten.rdmon;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.NavigationView;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -28,17 +37,22 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.plus.Plus;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
@@ -56,13 +70,14 @@ public class MainActivity extends AppCompatActivity
     Integer isSensitive = 0;
     Integer doesExercise = 0;
     Integer API = 0;
-    public static Boolean InternetAvailable = false;
+    public static Boolean InternetAvailable = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        //InternetAvailable = NetworkChangeReceiver.checkInternet(this);
+        //Toast.makeText(this, "Testooo" + InternetAvailable, Toast.LENGTH_SHORT).show();
         initLayout();
         initViews();
         initPrecautions();
@@ -175,7 +190,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_history) {
             gotoActivity(HistoryActivity.class);
         } else if (id == R.id.nav_air) {
-
+            gotoActivity(ApiTableActivity.class);
         } else if (id == R.id.nav_about) {
 
         } else if (id == R.id.nav_signout) {
@@ -326,9 +341,10 @@ public class MainActivity extends AppCompatActivity
             if(InternetAvailable) {
                     Log.i (TAG, "Internet Connected");
                     return getLatestFeed();
+                    //return getAveragedFeed();
             }
             else {
-                Log.i ("Tag", "Internet Not Connected");
+                Log.i (TAG, "Internet Not Connected");
                 return "no_internet";
             }
         }
@@ -345,20 +361,41 @@ public class MainActivity extends AppCompatActivity
             }
 
             try {
+                //Sample response at End of File
+
+                /*JSONObject channel = new JSONObject(response);
+                JSONArray feedArray = channel.getJSONArray("feeds");
+                JSONObject feedObject = feedArray.getJSONObject(0);
+
+                Log.e(TAG, String.valueOf(channel));
+                Log.e(TAG, String.valueOf(feedObject));
+                double temp = feedObject.getDouble("field1");
+                double humidity = feedObject.getDouble("field2");
+                double dust = feedObject.getDouble("field3");
+                String ctime = feedObject.getString("created_at");
+                String updateTime = ctime.replace("T", " ").replace(":00+08:00", "");
+
+                lastupdateTextView.setText(updateTime);*/
+
                 JSONObject channel = (JSONObject) new JSONTokener(response).nextValue();
                 double temp = channel.getDouble("field1");
                 double humidity = channel.getDouble("field2");
                 double dust = channel.getDouble("field3");
-                API = channel.getInt("field4");
+                Date curDate = new Date();
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm");
+                String DateToStr = format.format(curDate);
+                Date currHour = toNearestWholeHour(curDate);
+                String HourToStr = format.format(currHour);
+
+                lastupdateTextView.setText(HourToStr);
+
+                API = getAPI(BigDecimal.valueOf(dust).floatValue());
 
                 tempTextView.setText(String.valueOf(temp)+ getString(R.string.unit_temp));
                 humidityTextView.setText(String.valueOf(humidity)+ getString(R.string.unit_humidity));
                 dustTextView.setText(String.valueOf(dust)+ getString(R.string.unit_dust));
                 APITextView.setText(String.valueOf(API));
-                Date curDate = new Date();
-                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm");
-                String DateToStr = format.format(curDate);
-                lastupdateTextView.setText(DateToStr);
+
 
                 Log.e(TAG, String.valueOf(temp) + String.valueOf(humidity) + String.valueOf(dust));
 
@@ -384,7 +421,69 @@ public class MainActivity extends AppCompatActivity
             }
         }
 
+        private Date toNearestWholeHour(Date d) {
+            Calendar c = new GregorianCalendar();
+            c.setTime(d);
+
+            /*if (c.get(Calendar.MINUTE) >= 30)
+                c.add(Calendar.HOUR, 1);*/
+
+            //Truncate to nearest hour
+            c.set(Calendar.MINUTE, 0);
+            c.set(Calendar.SECOND, 0);
+            c.set(Calendar.MILLISECOND, 0);
+
+            return c.getTime();
+        }
+
+        private String getAveragedFeed(){
+
+            Date curDate = new Date();
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm");
+            Date currHour = toNearestWholeHour(curDate);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(currHour);
+            calendar.add(Calendar.HOUR, -1);
+            String HourToStr = format.format(currHour);
+            String endtime = format.format(calendar.getTime());
+            String start_time, end_time;
+            try {
+                start_time = URLEncoder.encode(HourToStr, "UTF-8");
+                end_time = URLEncoder.encode(endtime, "UTF-8");
+            } catch (Exception e) {
+                return new String("Exception: " + e.getMessage());
+            }
+            try {
+                //http://api.thingspeak.com/channels/108012/feeds.json?start=2016-05-17%2017:00&end=2016-05-17%2018:00&average=60&timezone=Asia/Kuala_Lumpur
+
+                URL url = new URL("https://api.thingspeak.com/channels/" + 108012 +
+                        "/feeds.json?start="+ start_time + "&end="+ end_time +
+                        "&average=60" + "&timezone=Asia/Kuala_Lumpur");
+                /*URL url = new URL("https://api.thingspeak.com/channels/" + 108012 +
+                        "/feeds/last?" + "key" + "=" +
+                        "MHJRONDJFO3TD3WA" + "");*/
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                try {
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                    StringBuilder stringBuilder = new StringBuilder();
+                    String line;
+                    while ((line = bufferedReader.readLine()) != null) {
+                        stringBuilder.append(line).append("\n");
+                    }
+                    bufferedReader.close();
+                    return stringBuilder.toString();
+                } finally {
+                    urlConnection.disconnect();
+                }
+            }
+            catch(Exception e) {
+                Log.e("ERROR", e.getMessage(), e);
+                return null;
+            }
+        }
+
         private String getLatestFeed(){
+
             try {
                 URL url = new URL("https://api.thingspeak.com/channels/" + 108012 +
                         "/feeds/last?" + "key" + "=" +
@@ -407,6 +506,62 @@ public class MainActivity extends AppCompatActivity
                 Log.e("ERROR", e.getMessage(), e);
                 return null;
             }
+        }
+
+        private int getAPI(float dust)
+        {
+            int api = 0;
+            int tmp =0;
+            int i =0;
+
+            if(dust <= 0)
+                api = 0;
+            else if(dust <= 50)
+                api = Math.round(dust);
+            else if (dust <= 250){
+                tmp = 60;
+                for(i=5; i <=100; i+=5){
+                    if(dust <= tmp){
+                        api = tmp - i;
+                        break;
+                    }
+                    tmp += 10;
+                }
+            }
+            else{
+                api = -1;
+            }
+            return api;
+        }
+
+        private void pushNotification(String title, String desc){
+
+            NotificationManager notificationManager;
+            Notification mNotification;
+            PendingIntent mPendingIntent;
+
+            notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            mPendingIntent = PendingIntent.getActivity(getApplicationContext(), 1, intent, 0);
+            Notification.Builder mBuilder = new Notification.Builder(getApplicationContext());
+
+            mBuilder.setDefaults(Notification.DEFAULT_SOUND|Notification.DEFAULT_LIGHTS|Notification.DEFAULT_VIBRATE);
+            mBuilder.setAutoCancel(true);
+            mBuilder.setContentTitle(title);
+            mBuilder.setTicker(title);
+            mBuilder.setContentText(desc);
+            mBuilder.setSmallIcon(R.drawable.ic_launcher_big);
+            mBuilder.setContentIntent(mPendingIntent);
+            mBuilder.setOngoing(false);
+
+            //API level 16
+            /*
+            mBuilder.setSubText("This is short description of android app notification");
+            mBuilder.setNumber(150);
+            mBuilder.build();*/
+            mNotification = mBuilder.getNotification();
+            notificationManager.notify(11, mNotification);
         }
 
         private void setRangeID(){
@@ -458,7 +613,8 @@ public class MainActivity extends AppCompatActivity
             else if(rangeID == 2) { //Unhealthy
                 if (isSensitive == 1) {
                     HeartPrecautionTextView.setText(precautions.get(6).getPrecaution());
-                    HeartPrecautionTextView.setVisibility(View.VISIBLE);}
+                    HeartPrecautionTextView.setVisibility(View.VISIBLE);
+                }
                 if (doesExercise == 1) {
                     ExercisePrecautionTextView.setText(precautions.get(7).getPrecaution());
                     ExercisePrecaution.setVisibility(View.VISIBLE);}
@@ -470,27 +626,117 @@ public class MainActivity extends AppCompatActivity
                 }
                 GeneralPrecautionTextView.setText(precautions.get(8).getPrecaution());
                 AirDescTextView.setText("UNHEALTHY AIR QUALITY");
+                pushNotification("Unhealthy Air Quality", HeartPrecautionTextView.getText().toString());
             }
             else
                 Log.d("Tag", "Invalid rangeID");
         }
 
         private void updateUI(Integer rangeID){
-            /*int colorFrom = ContextCompat.getColor(context, R.color.mgreen);
-                int colorTo = ContextCompat.getColor(context, R.color.myellow);
-                ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
-                colorAnimation.setDuration(2500); // milliseconds
-                colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            int mcolor, tcolor, dcolor;
 
-                    @Override
-                    public void onAnimationUpdate(ValueAnimator animator) {
-                        findViewById(R.id.main_content).setBackgroundColor((int) animator.getAnimatedValue());
-                    }
+            if (rangeID== 0){ //Good
+                mcolor = R.color.mblue;
+                tcolor = R.color.tblue;
+                dcolor = R.color.descblue;
+            }
 
-                });
-                colorAnimation.start();*/
+            else if(rangeID == 1){ //Moderate
+                mcolor = R.color.mgreen;
+                tcolor = R.color.tgreen;
+                dcolor = R.color.descgreen;
+            }
+            else if (rangeID== 2){ //Unhealthy
+                mcolor = R.color.myellow;
+                tcolor = R.color.tyellow;
+                dcolor = R.color.descyellow;
+            }
+
+            else{
+                mcolor = R.color.mgreen;
+                tcolor = R.color.tgreen;
+                dcolor = R.color.descgreen;
+            }
+            animateBackground(mcolor, tcolor, dcolor);
+        }
+
+        private void animateBackground(int mc, int tc, int dc ){
+
+            int color = Color.TRANSPARENT;
+            Drawable background = findViewById(R.id.content_main).getBackground();
+            if (background instanceof ColorDrawable)
+                color = ((ColorDrawable) background).getColor();
+            int colorFrom = color;
+            int colorTo = getApplicationContext().getResources().getColor(mc);
+            ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
+            colorAnimation.setDuration(2500); // milliseconds
+            colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+                @Override
+                public void onAnimationUpdate(ValueAnimator animator) {
+                    findViewById(R.id.content_main).setBackgroundColor((int) animator.getAnimatedValue());
+                }
+            });
+
+            int tcolor = Color.TRANSPARENT;
+            Drawable tbackground = findViewById(R.id.toolbar).getBackground();
+            if (background instanceof ColorDrawable)
+                tcolor = ((ColorDrawable) tbackground).getColor();
+            int tcolorFrom = tcolor;
+            int tcolorTo = getApplicationContext().getResources().getColor(tc);
+
+            ValueAnimator tcolorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), tcolorFrom, tcolorTo);
+            tcolorAnimation.setDuration(2500); // milliseconds
+            tcolorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+                @Override
+                public void onAnimationUpdate(ValueAnimator tanimator) {
+                    findViewById(R.id.toolbar).setBackgroundColor((int) tanimator.getAnimatedValue());
+                }
+            });
+
+            int dcolor = Color.TRANSPARENT;
+            Drawable dbackground = findViewById(R.id.desc).getBackground();
+            if (background instanceof ColorDrawable)
+                dcolor = ((ColorDrawable) dbackground).getColor();
+            int dcolorFrom = dcolor;
+            int dcolorTo = getApplicationContext().getResources().getColor(dc);
+
+            ValueAnimator dcolorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), dcolorFrom, dcolorTo);
+            dcolorAnimation.setDuration(2500); // milliseconds
+            dcolorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+                @Override
+                public void onAnimationUpdate(ValueAnimator danimator) {
+                    findViewById(R.id.desc).setBackgroundColor((int) danimator.getAnimatedValue());
+                    findViewById(R.id.todo).setBackgroundColor((int) danimator.getAnimatedValue());
+                }
+            });
+            colorAnimation.start();
+            tcolorAnimation.start();
+            dcolorAnimation.start();
         }
     }
 }
 
 
+/*{"channel":{
+    "id":108012,
+    "name":"rdmon",
+    "latitude":"0.0",
+    "longitude":"0.0",
+    "field1":"temp",
+    "field2":"humidity",
+    "field3":"dust",
+    "field4":"api",
+    "created_at":"2016-04-13T17:04:56+08:00",
+    "updated_at":"2016-05-17T17:40:01+08:00",
+    "last_entry_id":183},
+    "feeds":[{
+        "created_at":"2016-05-17T17:00:00+08:00",
+        "field1":"24.4",
+        "field2":"51.2","
+        field3":"95.6",
+        "field4":"72.0"
+    }]
+}*/

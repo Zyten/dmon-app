@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
+import android.widget.Toast;
 
 
 public class NetworkChangeReceiver extends BroadcastReceiver{
@@ -18,66 +19,36 @@ public class NetworkChangeReceiver extends BroadcastReceiver{
     @Override
     public void onReceive(Context context, Intent intent) {
 
+        //Toast.makeText(context, "Fired",Toast.LENGTH_LONG).show();
         if(checkInternet(context))
         {
             Log.i (TAG, "InternetAvailable = true");
-            MainActivity.InternetAvailable = true;//Toast.makeText(context, "Network Available Do operations",Toast.LENGTH_LONG).show();
-        }
-        else{
             MainActivity.InternetAvailable = true;
         }
-
-
-        //boolean isWiFi = activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
-        //boolean isConnected = intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
-        /*if(!isConnected){
-            Log.i ("Tag", "Network Connected");
-            //Toast.makeText(context, "Connected to Network", Toast.LENGTH_SHORT).show();
-            if (isInternetAvailable()) {
-                Log.i ("Tag", "Connected to Internet");
-                //Toast.makeText(context, "Connected to Internet", Toast.LENGTH_SHORT).show();
-            }
-
-            else {
-                Log.i ("Tag", "No Internet Connection");
-                Toast.makeText(context, "No Internet Connection", Toast.LENGTH_SHORT).show();
-            }
+        else{
+            Log.i (TAG, "InternetAvailable = false");
+            MainActivity.InternetAvailable = false;
         }
-        else {
-            Log.i ("Tag", "Network Not Connected");
-            //Toast.makeText(context, "No Internet Connection", Toast.LENGTH_SHORT).show();
-            Toast.makeText(context, "Not Connected to Network", Toast.LENGTH_SHORT).show();
-
-        }*/
     }
 
-    boolean checkInternet(Context context) {
-        ConnectivityManager cm =
-                (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        boolean isConnected = activeNetwork != null &&
-                activeNetwork.isConnectedOrConnecting();
+    protected static boolean checkInternet(Context context) {
+
         ServiceManager serviceManager = new ServiceManager(context);
 
-        if(!isConnected){
+        if(serviceManager.isNetworkAvailable()){
             Log.i (TAG, "Connected to Network");
+            return true;
+            /*
             if (serviceManager.isInternetAvailable()) {
                 Log.i (TAG, "Connected to Internet");
                 return true;
             }
             else{
                 return false;
-            }
+            }*/
         }
         else
             return false;
-
-
-        /*if (serviceManager.isNetworkAvailable()) {
-            return true;
-        } else {
-            return false;
-        }*/
     }
 
 

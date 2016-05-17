@@ -225,25 +225,16 @@ public class LoginActivity extends AppCompatActivity implements
 
     @Override
     public void onClick(View v) {
-        //boolean isConnected = intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
-
-            ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-            WifiManager manager2 = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-            NetworkInfo networkInfo = manager.getActiveNetworkInfo();
-
-            boolean isAvailable = false;
-            if (networkInfo != null && networkInfo.isConnected()) {
-                switch (v.getId()) {
-                    case R.id.btnlogin:
-                        getIdToken();
-                        break;
-                }
+        if (MainActivity.InternetAvailable) {
+            switch (v.getId()) {
+                case R.id.btnlogin:
+                    getIdToken();
+                    break;
             }
-            else
-            {
-                Toast.makeText(this.getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
-            }
-
+        }
+        else {
+            Toast.makeText(this.getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -272,82 +263,6 @@ public class LoginActivity extends AppCompatActivity implements
         else {
             return super.onKeyDown(keyCode, event);
         }
-
     }
-
-
-    public boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null;
-    }
-
-    public boolean isInternetAvailable()
-    {
-        try
-        {
-            HttpURLConnection urlc = (HttpURLConnection)
-                    (new URL("http://clients3.google.com/generate_204")
-                            .openConnection());
-            urlc.setRequestProperty("User-Agent", "Android");
-            urlc.setRequestProperty("Connection", "close");
-            urlc.setConnectTimeout(1500);
-            urlc.connect();
-
-            return (urlc.getResponseCode() == 204 &&
-                    urlc.getContentLength() == 0);
-            //return (Runtime.getRuntime().exec ("ping -c 1 google.com").waitFor() == 0);
-        }
-        catch (Exception ex)
-        {
-            ex.printStackTrace();
-        }
-        return false;
-    }
-
-    class CheckInternet extends AsyncTask<Void, Void, Boolean> {
-
-        private Exception exception;
-
-        protected Boolean doInBackground(Void... a) {
-
-           // View v = urls[0];
-
-            try {
-                if(isNetworkAvailable()){
-                    Log.i ("Tag", "Network Connected");
-                    //Toast.makeText(this.getApplicationContext(), "Connected to Network", Toast.LENGTH_LONG).show();
-                    if (isInternetAvailable()) {
-                        Log.i ("Tag", "Internet Connected");
-                        return true;
-                    }
-
-                    else {
-                        Log.i ("Tag", "No Internet Connection");
-                        //Toast.makeText(this.getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
-                        return false;
-                    }
-                }
-                else {
-                    Log.i ("Tag", "Network Not Connected");
-                    //Toast.makeText(this.getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
-                    //Toast.makeText(this.getApplicationContext(), "Not Connected to Network", Toast.LENGTH_LONG).show();
-                    return false;
-                }
-
-            } catch (Exception e) {
-                this.exception = e;
-                return null;
-            }
-        }
-
-
-
-        protected void onPostExecute() {
-            hasInternet = true;
-        }
-    }
-
 }
 

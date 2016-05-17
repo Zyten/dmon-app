@@ -27,7 +27,7 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
     private WebView mWebView = null;
     private LinearLayout mlLayoutRequestError = null;
     private Handler mhErrorLayoutHide;
-    private final String URL = "https://api.thingspeak.com/channels/108012/charts/4?&results=15&dynamic=&width=320&title=API History";
+    private final String URL = "https://api.thingspeak.com/channels/117109/charts/1?&results=15&dynamic=&width=320&title=API History";
     private boolean mbErrorOccured = false;
     private boolean mbReloadPressed = false;
 

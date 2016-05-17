@@ -13,7 +13,8 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".MainActivity"
-    tools:showIn="@layout/app_bar_main">
+    tools:showIn="@layout/app_bar_main"
+    android:id="@+id/content_main">
 
     <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/activity_main_swipe_refresh_layout"
@@ -201,7 +202,8 @@
                 android:orientation="horizontal"
                 android:paddingLeft="5dp"
                 android:paddingRight="3dp"
-                android:weightSum="1">
+                android:weightSum="1"
+                android:id="@+id/desc">
 
                 <com.github.pwittchen.weathericonview.WeatherIconView
                     android:id="@+id/air_icon"
@@ -250,7 +252,8 @@
                     android:background="#5CBA60"
                     android:orientation="horizontal"
                     android:paddingLeft="5dp"
-                    android:paddingRight="3dp">
+                    android:paddingRight="3dp"
+                    android:id="@+id/todo">
 
                     <ImageView
                         android:id="@+id/ImageInfo"
@@ -427,7 +430,7 @@
             android:layout_marginStart="25dp"
             android:layout_weight="0.8"
             android:gravity="left"
-            android:text="14 Apr 2016 05: 21"
+            android:text=""
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="#ffffff"
             android:textSize="14dp" />

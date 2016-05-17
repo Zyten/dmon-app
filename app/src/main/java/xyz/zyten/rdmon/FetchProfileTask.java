@@ -8,11 +8,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Toast;
 
 import org.json.JSONException;
@@ -24,14 +20,14 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 
-public class UpdateProfileTask extends AsyncTask<String, Void, String> {
+public class FetchProfileTask extends AsyncTask<String, Void, String> {
     private Context context;
     private CoordinatorLayout coordinatorLayout;
-    String TAG ="UpdateProfile";
+    String TAG ="FetchProfileTask";
 
     String username, gender, birthday, hometown, currResidence, googleID;
 
-    public UpdateProfileTask(Context context) {
+    public FetchProfileTask(Context context) {
         this.context = context;
     }
 
@@ -41,12 +37,6 @@ public class UpdateProfileTask extends AsyncTask<String, Void, String> {
 
     @Override
     protected String doInBackground(String... arg0) {
-        username = arg0[0];
-        gender = arg0[1];
-        birthday = arg0[2];
-        hometown = arg0[3];
-        currResidence = arg0[4];
-        googleID = arg0[5];
 
         if(MainActivity.InternetAvailable) {
             Log.i (TAG, "Internet Connected");

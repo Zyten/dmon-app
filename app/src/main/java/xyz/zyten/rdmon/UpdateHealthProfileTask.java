@@ -103,7 +103,7 @@ public class UpdateHealthProfileTask extends AsyncTask<Integer, Void, String> {
             data += "&doesExercise=" + URLEncoder.encode(doesExercise.toString(), "UTF-8");
             data += "&googleID=" + URLEncoder.encode(googleID, "UTF-8");
 
-            link = "http://zyten.xyz/testo/updateHProfile.php" + data;
+            link = "http://188.166.224.15/dmon-app/updateHProfile.php" + data;
             URL url = new URL(link);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
 

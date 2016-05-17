@@ -19,7 +19,7 @@
         <item
             android:id="@+id/nav_air"
             android:icon="@drawable/grid"
-            android:title="Air Quality" />
+            android:title="API Table" />
     </group>
 
     <group
