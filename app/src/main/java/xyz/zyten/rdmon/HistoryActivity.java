@@ -2,9 +2,7 @@ package xyz.zyten.rdmon;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.graphics.Bitmap;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -26,8 +24,8 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
     private static final String TAG = "HistoryActivity";
     private WebView mWebView = null;
     private LinearLayout mlLayoutRequestError = null;
-    private Handler mhErrorLayoutHide;
-    private final String URL = "https://api.thingspeak.com/channels/117109/charts/1?&results=15&dynamic=&width=320&title=API History";
+    private Handler mhErrorLayoutHide; //117109 ?results
+    private final String URL = "https://api.thingspeak.com/channels/108012/charts/4?&results=15&dynamic=&width=320&title=API History";
     private boolean mbErrorOccured = false;
     private boolean mbReloadPressed = false;
 

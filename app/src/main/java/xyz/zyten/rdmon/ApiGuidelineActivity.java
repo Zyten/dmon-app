@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class ApiTableActivity extends AppCompatActivity {
+public class ApiGuidelineActivity extends AppCompatActivity {
 
     // Array of strings for ListView Title
     String[] listviewTitle = new String[]{
