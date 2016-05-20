@@ -5,6 +5,8 @@ package xyz.zyten.rdmon;
  */
 
 public class Precaution{
+
+    private static final String TAG = "Precaution";
     private Integer rangeID;
     private Integer healthID;
     private String desc;

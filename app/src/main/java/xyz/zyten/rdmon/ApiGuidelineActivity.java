@@ -17,6 +17,7 @@ import java.util.List;
 
 public class ApiGuidelineActivity extends AppCompatActivity {
 
+    private static final String TAG = "ApiGuidelineActivity";
     // Array of strings for ListView Title
     String[] listviewTitle = new String[]{
             "Good", "Moderate", "Unhealthy"

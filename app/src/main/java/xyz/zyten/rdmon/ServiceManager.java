@@ -13,6 +13,7 @@ import java.net.URL;
  */
 public class ServiceManager extends ContextWrapper {
 
+    private static final String TAG = "ServiceManager";
     public ServiceManager(Context base) {
         super(base);
     }

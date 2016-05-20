@@ -28,6 +28,7 @@ import java.util.Calendar;
 
 public class ProfileActivity extends AppCompatActivity{
 
+    private static final String TAG = "ProfileActivity";
     private TextView accountIdTextView;
     private EditText usernameEditText, birthdayEditText, hometownEditText, currResidenceEditText;
     private RadioGroup radioSexGroup;

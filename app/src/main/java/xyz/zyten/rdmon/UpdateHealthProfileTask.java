@@ -24,7 +24,7 @@ public class UpdateHealthProfileTask extends AsyncTask<Integer, Void, String> {
     private Context context;
     private Integer isSensitive, doesExercise;
     private String googleID;
-    String TAG = "UpdateHealthActivityTask";
+    private static final String TAG = "UpdateHealthProfileTask";
 
     public UpdateHealthProfileTask(Context context) {
         this.context = context;

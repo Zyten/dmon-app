@@ -19,6 +19,7 @@ import java.net.URLEncoder;
 
 public class isRegistered {
     private Context context;
+    private static final String TAG = "isRegistered";
     private Integer registeredStatus;
 
     public isRegistered(Context context) {

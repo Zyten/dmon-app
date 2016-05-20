@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="@dimen/nav_header_height"
-    android:background="#19a382"
+    android:background="@drawable/nav_header_bg2"
     android:gravity="bottom"
     android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
@@ -12,17 +12,40 @@
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
     <TextView
+    android:id="@+id/menu_header"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="@dimen/nav_header_vertical_spacing"
+    android:text="Realtime D-MON"
+    android:textAppearance="@style/TextAppearance.AppCompat.Large"
+    android:gravity="center"
+    android:layout_gravity="center_horizontal"
+    android:layout_marginTop="-10dp"/>
+
+    <TextView
+        android:id="@+id/menu_app_version"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/nav_header_vertical_spacing"
+        android:text="v0.25"
+        android:gravity="center"
+        android:layout_gravity="center_horizontal"
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+        android:layout_marginTop="-20dp"
+        android:layout_marginBottom="20dp" />
+
+    <TextView
         android:id="@+id/userName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
-        android:text=""
+        android:text="11"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
     <TextView
-        android:id="@+id/currResidence"
+        android:id="@+id/email"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="" />
+        android:text="11" />
 
 </LinearLayout>

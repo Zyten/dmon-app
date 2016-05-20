@@ -2,6 +2,7 @@ package xyz.zyten.rdmon;
 
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -14,11 +15,10 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.NavigationView;
-import android.support.v4.content.ContextCompat;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -37,22 +37,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.plus.Plus;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.math.BigDecimal;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
@@ -61,7 +46,7 @@ public class MainActivity extends AppCompatActivity
 
     GoogleApiClient mGoogleApiClient;
     private static final String TAG = "MainActivity";
-    protected TextView tempTextView, humidityTextView, dustTextView, APITextView, lastupdateTextView,
+    protected TextView mUserTextView, mEmailTextView, tempTextView, humidityTextView, dustTextView, APITextView, lastupdateTextView,
             HeartPrecautionTextView,ExercisePrecautionTextView,GeneralPrecautionTextView, AirDescTextView;
     SwipeRefreshLayout swipeRefreshLayout;
     List<Precaution> precautions;
@@ -76,8 +61,6 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //InternetAvailable = NetworkChangeReceiver.checkInternet(this);
-        //Toast.makeText(this, "Testooo" + InternetAvailable, Toast.LENGTH_SHORT).show();
         initLayout();
         initViews();
         initPrecautions();
@@ -92,50 +75,64 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onStart() {
         super.onStart();
+        Log.e(TAG, "Started");
+
+        startNotificationService();
         mGoogleApiClient.connect();
-        new FetchThingspeakTask().execute();
+
+        new FetchThingSpeakTask(MainActivity.this, new FetchThingSpeakTaskCompleteListener()).execute();
     }
 
    @Override
     public void onPause() {
         super.onPause();  // Always call the superclass method first
         //paused = true;
+       Log.e(TAG, "Paused");
     }
 
     @Override
     protected void onResume(){
         super.onResume();
-        /*paused = false;
+        Log.e(TAG, "Resumed");
+        paused = false;
         //simulate doing something
         if(!paused)
-            doTheAutoRefresh();*/
-
+            doTheAutoRefresh();
     }
 
     @Override
     public void onStop() {
         super.onStop();  // Always call the superclass method first
-        paused = true;
+        Log.e(TAG, "Stopped");
+        //paused = true;
+        startNotificationService();
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();  // Always call the superclass method first
+        Log.e(TAG, "Dead");
+        //paused = true;
+        startNotificationService();
+    }
     private final Handler handler = new Handler();
 
     private void doTheAutoRefresh() {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                new FetchThingspeakTask().execute();
-                Toast.makeText(MainActivity.this, "Updated", Toast.LENGTH_SHORT).show(); // this is where you put your refresh code
+                //new FetchThingspeakTask().execute();
+                new FetchThingSpeakTask(MainActivity.this, new FetchThingSpeakTaskCompleteListener()).execute();
                 doTheAutoRefresh();
             }
-        }, 15000); //1000 ms = 1 s
+        }, 300000); //1000 ms = 1 s
     }
 
     SwipeRefreshLayout.OnRefreshListener onRefreshListener = new SwipeRefreshLayout.OnRefreshListener(){
         @Override
         public void onRefresh() {
             //textInfo.setText("WAIT: doing something");
-            new FetchThingspeakTask().execute();
+            new FetchThingSpeakTask(MainActivity.this, new FetchThingSpeakTaskCompleteListener()).execute();
 
 
             //simulate doing something
@@ -190,10 +187,11 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_history) {
             gotoActivity(HistoryActivity.class);
         } else if (id == R.id.nav_air) {
-            gotoActivity(ApiTableActivity.class);
-        } else if (id == R.id.nav_about) {
-
-        } else if (id == R.id.nav_signout) {
+            gotoActivity(ApiGuidelineActivity.class);
+        } else if (id == R.id.nav_settings) {
+            gotoActivity(SettingsActivity.class);
+        }
+        else if (id == R.id.nav_signout) {
             signout();
         }
 
@@ -201,7 +199,6 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
 
     @Override
     public void onClick(View v) {
@@ -220,7 +217,7 @@ public class MainActivity extends AppCompatActivity
         //Handle the back button
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             //Ask the user if they want to quit
-            new AlertDialog.Builder(this)
+            new AlertDialog.Builder(this, R.style.AppTheme)
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .setTitle(R.string.quit)
                     .setMessage(R.string.really_quit)
@@ -256,9 +253,21 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        SharedPreferences getpref = getSharedPreferences("GProfile", Context.MODE_PRIVATE);
+
+        String username = getpref.getString("username", "");
+        String email = getpref.getString("email", "");
+
+        mUserTextView = (TextView) navigationView.getHeaderView(0).findViewById(R.id.userName);
+        mEmailTextView = (TextView) navigationView.getHeaderView(0).findViewById(R.id.email);
+        mUserTextView.setText(username);
+        mEmailTextView.setText(email);
+
     }
 
     private void initViews(){
+
         tempTextView = (TextView) findViewById(R.id.tempTextView);
         humidityTextView = (TextView) findViewById(R.id.humidityTextView);
         dustTextView = (TextView) findViewById(R.id.dustTextView);
@@ -309,6 +318,20 @@ public class MainActivity extends AppCompatActivity
         MainActivity.this.finish();
     }
 
+    private void startNotificationService(){
+        SharedPreferences gettemppref;
+        gettemppref = getSharedPreferences("myProfile", 0);
+        Boolean notifyMe = gettemppref.getBoolean("notifyMe", false);
+
+        if(notifyMe){
+            Intent NotificationStartService = new Intent(MainActivity.this, NotificationStartService.class);
+            MainActivity.this.startService(NotificationStartService);
+            Log.e(TAG,"Triggered NotifyService");
+        }
+        else
+            Log.e(TAG,"NotifyService off");
+    }
+
     private void initPrecautions(){
         //Get precautions desc from xml array
         Resources res = getResources();
@@ -326,87 +349,30 @@ public class MainActivity extends AppCompatActivity
         //HealthID: 0 - isSemsitive, 1 - doesExercise, 2 - None
     }
 
-    class FetchThingspeakTask extends AsyncTask<Void, Void, String> {
+    public class FetchThingSpeakTaskCompleteListener implements AsyncTaskCompleteListener<SensorData>
+    {
 
-    Context context;
+        public FetchThingSpeakTaskCompleteListener(){
 
-        protected void onPreExecute() {
-
-            tempTextView.setText("");
-            humidityTextView.setText("");
-            dustTextView.setText("");
         }
 
-        protected String doInBackground(Void... urls) {
-            if(InternetAvailable) {
-                    Log.i (TAG, "Internet Connected");
-                    return getLatestFeed();
-                    //return getAveragedFeed();
-            }
-            else {
-                Log.i (TAG, "Internet Not Connected");
-                return "no_internet";
-            }
-        }
+        @Override
+        public void onTaskComplete(SensorData mydata)
+        {
+            if(mydata.toastMessage == "Updated") {
+                lastupdateTextView.setText(mydata.lastupdateText);
+                API = mydata.API;
+                tempTextView.setText(mydata.tempText);
+                humidityTextView.setText(mydata.humidityText);
+                dustTextView.setText(mydata.dustText);
+                APITextView.setText(mydata.APIText);
 
-        protected void onPostExecute(String response) {
-            if(response == null) {
-                Toast.makeText(MainActivity.this, "No response from server. Please try again later.", Toast.LENGTH_SHORT).show();
-                return;
-            }
+                Log.e(TAG, "Received: " + String.valueOf(mydata.tempText) + String.valueOf(mydata.humidityText) + String.valueOf(mydata.dustText));
 
-            if(response == "no_internet") {
-                Toast.makeText(MainActivity.this, "No Internet Connection", Toast.LENGTH_SHORT).show();
-                return;
-            }
+                isSensitive = mydata.isSensitive;
+                doesExercise = mydata.doesExercise;
 
-            try {
-                //Sample response at End of File
-
-                /*JSONObject channel = new JSONObject(response);
-                JSONArray feedArray = channel.getJSONArray("feeds");
-                JSONObject feedObject = feedArray.getJSONObject(0);
-
-                Log.e(TAG, String.valueOf(channel));
-                Log.e(TAG, String.valueOf(feedObject));
-                double temp = feedObject.getDouble("field1");
-                double humidity = feedObject.getDouble("field2");
-                double dust = feedObject.getDouble("field3");
-                String ctime = feedObject.getString("created_at");
-                String updateTime = ctime.replace("T", " ").replace(":00+08:00", "");
-
-                lastupdateTextView.setText(updateTime);*/
-
-                JSONObject channel = (JSONObject) new JSONTokener(response).nextValue();
-                double temp = channel.getDouble("field1");
-                double humidity = channel.getDouble("field2");
-                double dust = channel.getDouble("field3");
-                Date curDate = new Date();
-                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm");
-                String DateToStr = format.format(curDate);
-                Date currHour = toNearestWholeHour(curDate);
-                String HourToStr = format.format(currHour);
-
-                lastupdateTextView.setText(HourToStr);
-
-                API = getAPI(BigDecimal.valueOf(dust).floatValue());
-
-                tempTextView.setText(String.valueOf(temp)+ getString(R.string.unit_temp));
-                humidityTextView.setText(String.valueOf(humidity)+ getString(R.string.unit_humidity));
-                dustTextView.setText(String.valueOf(dust)+ getString(R.string.unit_dust));
-                APITextView.setText(String.valueOf(API));
-
-
-                Log.e(TAG, String.valueOf(temp) + String.valueOf(humidity) + String.valueOf(dust));
-
-                try {
-                    SharedPreferences getpref = getSharedPreferences("myProfile", 0);
-                    isSensitive = getpref.getInt("isSensitive", 0);
-                    doesExercise = getpref.getInt("doesExercise", 0);
-                }
-                catch(NullPointerException ex){
-                    Log.e("myProfile", ex.getMessage());}
-
+                // do something with the result
                 View HeartPrecaution = findViewById(R.id.HeartPrecaution);
                 View ExercisePrecaution = findViewById(R.id.ExercisePrecaution);
                 HeartPrecaution.setVisibility(View.GONE);
@@ -415,307 +381,165 @@ public class MainActivity extends AppCompatActivity
                 setRangeID();
                 setPrecaution(HeartPrecaution, ExercisePrecaution);
                 updateUI(rangeID);
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
-        private Date toNearestWholeHour(Date d) {
-            Calendar c = new GregorianCalendar();
-            c.setTime(d);
-
-            /*if (c.get(Calendar.MINUTE) >= 30)
-                c.add(Calendar.HOUR, 1);*/
-
-            //Truncate to nearest hour
-            c.set(Calendar.MINUTE, 0);
-            c.set(Calendar.SECOND, 0);
-            c.set(Calendar.MILLISECOND, 0);
-
-            return c.getTime();
-        }
-
-        private String getAveragedFeed(){
-
-            Date curDate = new Date();
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm");
-            Date currHour = toNearestWholeHour(curDate);
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(currHour);
-            calendar.add(Calendar.HOUR, -1);
-            String HourToStr = format.format(currHour);
-            String endtime = format.format(calendar.getTime());
-            String start_time, end_time;
-            try {
-                start_time = URLEncoder.encode(HourToStr, "UTF-8");
-                end_time = URLEncoder.encode(endtime, "UTF-8");
-            } catch (Exception e) {
-                return new String("Exception: " + e.getMessage());
-            }
-            try {
-                //http://api.thingspeak.com/channels/108012/feeds.json?start=2016-05-17%2017:00&end=2016-05-17%2018:00&average=60&timezone=Asia/Kuala_Lumpur
-
-                URL url = new URL("https://api.thingspeak.com/channels/" + 108012 +
-                        "/feeds.json?start="+ start_time + "&end="+ end_time +
-                        "&average=60" + "&timezone=Asia/Kuala_Lumpur");
-                /*URL url = new URL("https://api.thingspeak.com/channels/" + 108012 +
-                        "/feeds/last?" + "key" + "=" +
-                        "MHJRONDJFO3TD3WA" + "");*/
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                try {
-                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-                    StringBuilder stringBuilder = new StringBuilder();
-                    String line;
-                    while ((line = bufferedReader.readLine()) != null) {
-                        stringBuilder.append(line).append("\n");
-                    }
-                    bufferedReader.close();
-                    return stringBuilder.toString();
-                } finally {
-                    urlConnection.disconnect();
-                }
-            }
-            catch(Exception e) {
-                Log.e("ERROR", e.getMessage(), e);
-                return null;
-            }
-        }
-
-        private String getLatestFeed(){
-
-            try {
-                URL url = new URL("https://api.thingspeak.com/channels/" + 108012 +
-                        "/feeds/last?" + "key" + "=" +
-                        "MHJRONDJFO3TD3WA" + "");
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                try {
-                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-                    StringBuilder stringBuilder = new StringBuilder();
-                    String line;
-                    while ((line = bufferedReader.readLine()) != null) {
-                        stringBuilder.append(line).append("\n");
-                    }
-                    bufferedReader.close();
-                    return stringBuilder.toString();
-                } finally {
-                    urlConnection.disconnect();
-                }
-            }
-            catch(Exception e) {
-                Log.e("ERROR", e.getMessage(), e);
-                return null;
-            }
-        }
-
-        private int getAPI(float dust)
-        {
-            int api = 0;
-            int tmp =0;
-            int i =0;
-
-            if(dust <= 0)
-                api = 0;
-            else if(dust <= 50)
-                api = Math.round(dust);
-            else if (dust <= 250){
-                tmp = 60;
-                for(i=5; i <=100; i+=5){
-                    if(dust <= tmp){
-                        api = tmp - i;
-                        break;
-                    }
-                    tmp += 10;
-                }
             }
             else{
-                api = -1;
+                Log.e(TAG, "failed");
             }
-            return api;
+
+            Toast.makeText(MainActivity.this, String.valueOf(mydata.toastMessage), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void setRangeID(){
+        if(API < 51)
+            rangeID=0;
+        else if(API < 101)
+            rangeID=1;
+        else if (API < 151)
+            rangeID = 2;
+        else
+            rangeID = -1;
+    }
+
+    private void setPrecaution(View HeartPrecaution, View ExercisePrecaution)
+    {
+        if(rangeID == 0) { //Good
+            if (isSensitive == 1) {
+                HeartPrecautionTextView.setText(precautions.get(0).getPrecaution());
+                HeartPrecaution.setVisibility(View.VISIBLE);
+            }
+            if (doesExercise == 1){
+                ExercisePrecautionTextView.setText(precautions.get(1).getPrecaution());
+                ExercisePrecaution.setVisibility(View.VISIBLE);}
+            if (isSensitive != 1 && doesExercise !=1){
+                HeartPrecautionTextView.setText("");
+                ExercisePrecautionTextView.setText("");
+                HeartPrecaution.setVisibility(View.GONE);
+                ExercisePrecaution.setVisibility(View.GONE);
+            }
+            GeneralPrecautionTextView.setText(precautions.get(2).getPrecaution());
+            AirDescTextView.setText("EXCELLENT AIR QUALITY");
+        }
+        else if(rangeID == 1) { //Moderate
+            if (isSensitive == 1){
+                HeartPrecautionTextView.setText(precautions.get(3).getPrecaution());
+                HeartPrecaution.setVisibility(View.VISIBLE);}
+            if (doesExercise == 1) {
+                ExercisePrecautionTextView.setText(precautions.get(4).getPrecaution());
+                ExercisePrecaution.setVisibility(View.VISIBLE);}
+            if (isSensitive != 1 && doesExercise !=1){
+                HeartPrecautionTextView.setText("");
+                ExercisePrecautionTextView.setText("");
+                HeartPrecaution.setVisibility(View.GONE);
+                ExercisePrecaution.setVisibility(View.GONE);
+            }
+            GeneralPrecautionTextView.setText(precautions.get(5).getPrecaution());
+            AirDescTextView.setText("MODERATE AIR QUALITY");
+        }
+        else if(rangeID == 2) { //Unhealthy
+            if (isSensitive == 1) {
+                HeartPrecautionTextView.setText(precautions.get(6).getPrecaution());
+                HeartPrecautionTextView.setVisibility(View.VISIBLE);
+            }
+            if (doesExercise == 1) {
+                ExercisePrecautionTextView.setText(precautions.get(7).getPrecaution());
+                ExercisePrecaution.setVisibility(View.VISIBLE);}
+            if (isSensitive != 1 && doesExercise !=1){
+                HeartPrecautionTextView.setText("");
+                ExercisePrecautionTextView.setText("");
+                HeartPrecaution.setVisibility(View.GONE);
+                ExercisePrecaution.setVisibility(View.GONE);
+            }
+            GeneralPrecautionTextView.setText(precautions.get(8).getPrecaution());
+            AirDescTextView.setText("UNHEALTHY AIR QUALITY");
+        }
+        else
+            Log.d("Tag", "Invalid rangeID");
+    }
+
+    private void updateUI(Integer rangeID){
+        int mcolor, tcolor, dcolor;
+
+        if (rangeID== 0){ //Good
+            mcolor = R.color.mblue;
+            tcolor = R.color.tblue;
+            dcolor = R.color.descblue;
         }
 
-        private void pushNotification(String title, String desc){
-
-            NotificationManager notificationManager;
-            Notification mNotification;
-            PendingIntent mPendingIntent;
-
-            notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
-            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-            mPendingIntent = PendingIntent.getActivity(getApplicationContext(), 1, intent, 0);
-            Notification.Builder mBuilder = new Notification.Builder(getApplicationContext());
-
-            mBuilder.setDefaults(Notification.DEFAULT_SOUND|Notification.DEFAULT_LIGHTS|Notification.DEFAULT_VIBRATE);
-            mBuilder.setAutoCancel(true);
-            mBuilder.setContentTitle(title);
-            mBuilder.setTicker(title);
-            mBuilder.setContentText(desc);
-            mBuilder.setSmallIcon(R.drawable.ic_launcher_big);
-            mBuilder.setContentIntent(mPendingIntent);
-            mBuilder.setOngoing(false);
-
-            //API level 16
-            /*
-            mBuilder.setSubText("This is short description of android app notification");
-            mBuilder.setNumber(150);
-            mBuilder.build();*/
-            mNotification = mBuilder.getNotification();
-            notificationManager.notify(11, mNotification);
+        else if(rangeID == 1){ //Moderate
+            mcolor = R.color.mgreen;
+            tcolor = R.color.tgreen;
+            dcolor = R.color.descgreen;
+        }
+        else if (rangeID== 2){ //Unhealthy
+            mcolor = R.color.myellow;
+            tcolor = R.color.tyellow;
+            dcolor = R.color.descyellow;
         }
 
-        private void setRangeID(){
-            if(API < 51)
-                rangeID=0;
-            else if(API < 101)
-                rangeID=1;
-            else if (API < 151)
-                rangeID = 2;
-            else
-                rangeID = -1;
+        else{
+            mcolor = R.color.mgreen;
+            tcolor = R.color.tgreen;
+            dcolor = R.color.descgreen;
         }
+        animateBackground(mcolor, tcolor, dcolor);
+    }
 
-        private void setPrecaution(View HeartPrecaution, View ExercisePrecaution)
-        {
-            if(rangeID == 0) { //Good
-                if (isSensitive == 1) {
-                    HeartPrecautionTextView.setText(precautions.get(0).getPrecaution());
-                    HeartPrecaution.setVisibility(View.VISIBLE);
-                }
-                if (doesExercise == 1){
-                    ExercisePrecautionTextView.setText(precautions.get(1).getPrecaution());
-                    ExercisePrecaution.setVisibility(View.VISIBLE);}
-                if (isSensitive != 1 && doesExercise !=1){
-                    HeartPrecautionTextView.setText("");
-                    ExercisePrecautionTextView.setText("");
-                    HeartPrecaution.setVisibility(View.GONE);
-                    ExercisePrecaution.setVisibility(View.GONE);
-                }
-                GeneralPrecautionTextView.setText(precautions.get(2).getPrecaution());
-                AirDescTextView.setText("EXCELLENT AIR QUALITY");
+    private void animateBackground(int mc, int tc, int dc ){
+
+        int color = Color.TRANSPARENT;
+        Drawable background = findViewById(R.id.content_main).getBackground();
+        if (background instanceof ColorDrawable)
+            color = ((ColorDrawable) background).getColor();
+        int colorFrom = color;
+        int colorTo = getApplicationContext().getResources().getColor(mc);
+        ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
+        colorAnimation.setDuration(2500); // milliseconds
+        colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+            @Override
+            public void onAnimationUpdate(ValueAnimator animator) {
+                findViewById(R.id.content_main).setBackgroundColor((int) animator.getAnimatedValue());
             }
-            else if(rangeID == 1) { //Moderate
-                if (isSensitive == 1){
-                    HeartPrecautionTextView.setText(precautions.get(3).getPrecaution());
-                    HeartPrecaution.setVisibility(View.VISIBLE);}
-                if (doesExercise == 1) {
-                    ExercisePrecautionTextView.setText(precautions.get(4).getPrecaution());
-                    ExercisePrecaution.setVisibility(View.VISIBLE);}
-                if (isSensitive != 1 && doesExercise !=1){
-                    HeartPrecautionTextView.setText("");
-                    ExercisePrecautionTextView.setText("");
-                    HeartPrecaution.setVisibility(View.GONE);
-                    ExercisePrecaution.setVisibility(View.GONE);
-                }
-                GeneralPrecautionTextView.setText(precautions.get(5).getPrecaution());
-                AirDescTextView.setText("MODERATE AIR QUALITY");
+        });
+
+        int tcolor = Color.TRANSPARENT;
+        Drawable tbackground = findViewById(R.id.toolbar).getBackground();
+        if (background instanceof ColorDrawable)
+            tcolor = ((ColorDrawable) tbackground).getColor();
+        int tcolorFrom = tcolor;
+        int tcolorTo = getApplicationContext().getResources().getColor(tc);
+
+        ValueAnimator tcolorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), tcolorFrom, tcolorTo);
+        tcolorAnimation.setDuration(2500); // milliseconds
+        tcolorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+            @Override
+            public void onAnimationUpdate(ValueAnimator tanimator) {
+                findViewById(R.id.toolbar).setBackgroundColor((int) tanimator.getAnimatedValue());
             }
-            else if(rangeID == 2) { //Unhealthy
-                if (isSensitive == 1) {
-                    HeartPrecautionTextView.setText(precautions.get(6).getPrecaution());
-                    HeartPrecautionTextView.setVisibility(View.VISIBLE);
-                }
-                if (doesExercise == 1) {
-                    ExercisePrecautionTextView.setText(precautions.get(7).getPrecaution());
-                    ExercisePrecaution.setVisibility(View.VISIBLE);}
-                if (isSensitive != 1 && doesExercise !=1){
-                    HeartPrecautionTextView.setText("");
-                    ExercisePrecautionTextView.setText("");
-                    HeartPrecaution.setVisibility(View.GONE);
-                    ExercisePrecaution.setVisibility(View.GONE);
-                }
-                GeneralPrecautionTextView.setText(precautions.get(8).getPrecaution());
-                AirDescTextView.setText("UNHEALTHY AIR QUALITY");
-                pushNotification("Unhealthy Air Quality", HeartPrecautionTextView.getText().toString());
+        });
+
+        int dcolor = Color.TRANSPARENT;
+        Drawable dbackground = findViewById(R.id.desc).getBackground();
+        if (background instanceof ColorDrawable)
+            dcolor = ((ColorDrawable) dbackground).getColor();
+        int dcolorFrom = dcolor;
+        int dcolorTo = getApplicationContext().getResources().getColor(dc);
+
+        ValueAnimator dcolorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), dcolorFrom, dcolorTo);
+        dcolorAnimation.setDuration(2500); // milliseconds
+        dcolorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+            @Override
+            public void onAnimationUpdate(ValueAnimator danimator) {
+                findViewById(R.id.desc).setBackgroundColor((int) danimator.getAnimatedValue());
+                findViewById(R.id.todo).setBackgroundColor((int) danimator.getAnimatedValue());
             }
-            else
-                Log.d("Tag", "Invalid rangeID");
-        }
-
-        private void updateUI(Integer rangeID){
-            int mcolor, tcolor, dcolor;
-
-            if (rangeID== 0){ //Good
-                mcolor = R.color.mblue;
-                tcolor = R.color.tblue;
-                dcolor = R.color.descblue;
-            }
-
-            else if(rangeID == 1){ //Moderate
-                mcolor = R.color.mgreen;
-                tcolor = R.color.tgreen;
-                dcolor = R.color.descgreen;
-            }
-            else if (rangeID== 2){ //Unhealthy
-                mcolor = R.color.myellow;
-                tcolor = R.color.tyellow;
-                dcolor = R.color.descyellow;
-            }
-
-            else{
-                mcolor = R.color.mgreen;
-                tcolor = R.color.tgreen;
-                dcolor = R.color.descgreen;
-            }
-            animateBackground(mcolor, tcolor, dcolor);
-        }
-
-        private void animateBackground(int mc, int tc, int dc ){
-
-            int color = Color.TRANSPARENT;
-            Drawable background = findViewById(R.id.content_main).getBackground();
-            if (background instanceof ColorDrawable)
-                color = ((ColorDrawable) background).getColor();
-            int colorFrom = color;
-            int colorTo = getApplicationContext().getResources().getColor(mc);
-            ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
-            colorAnimation.setDuration(2500); // milliseconds
-            colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-
-                @Override
-                public void onAnimationUpdate(ValueAnimator animator) {
-                    findViewById(R.id.content_main).setBackgroundColor((int) animator.getAnimatedValue());
-                }
-            });
-
-            int tcolor = Color.TRANSPARENT;
-            Drawable tbackground = findViewById(R.id.toolbar).getBackground();
-            if (background instanceof ColorDrawable)
-                tcolor = ((ColorDrawable) tbackground).getColor();
-            int tcolorFrom = tcolor;
-            int tcolorTo = getApplicationContext().getResources().getColor(tc);
-
-            ValueAnimator tcolorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), tcolorFrom, tcolorTo);
-            tcolorAnimation.setDuration(2500); // milliseconds
-            tcolorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-
-                @Override
-                public void onAnimationUpdate(ValueAnimator tanimator) {
-                    findViewById(R.id.toolbar).setBackgroundColor((int) tanimator.getAnimatedValue());
-                }
-            });
-
-            int dcolor = Color.TRANSPARENT;
-            Drawable dbackground = findViewById(R.id.desc).getBackground();
-            if (background instanceof ColorDrawable)
-                dcolor = ((ColorDrawable) dbackground).getColor();
-            int dcolorFrom = dcolor;
-            int dcolorTo = getApplicationContext().getResources().getColor(dc);
-
-            ValueAnimator dcolorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), dcolorFrom, dcolorTo);
-            dcolorAnimation.setDuration(2500); // milliseconds
-            dcolorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-
-                @Override
-                public void onAnimationUpdate(ValueAnimator danimator) {
-                    findViewById(R.id.desc).setBackgroundColor((int) danimator.getAnimatedValue());
-                    findViewById(R.id.todo).setBackgroundColor((int) danimator.getAnimatedValue());
-                }
-            });
-            colorAnimation.start();
-            tcolorAnimation.start();
-            dcolorAnimation.start();
-        }
+        });
+        colorAnimation.start();
+        tcolorAnimation.start();
+        dcolorAnimation.start();
     }
 }
 

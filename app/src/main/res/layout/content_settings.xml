@@ -9,8 +9,8 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".HealthProfileActivity"
-    tools:showIn="@layout/app_bar_hprofile"
+    tools:context=".SettingsActivity"
+    tools:showIn="@layout/app_bar_settings"
     android:background="#009688">
 
 
@@ -32,17 +32,15 @@
         android:layout_marginTop="50dp"
         android:background="#00796B"
         android:layout_centerHorizontal="true"
-        android:theme="@style/MyButton"
+
         android:onClick="save"/>
 
-    <ListView
-        android:id="@+id/category_list"
-        android:layout_width="fill_parent"
+    <FrameLayout
+        android:id="@+id/content_frame"
+        android:layout_below="@+id/toolbar"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="5dip"
-        android:layout_marginBottom="5dip"
-        android:background="#00000000"
-        android:textColor="#ffffff"
-        />
+        android:color="@color/white"
+        android:theme="@style/BlackCheck"/>
 
 </RelativeLayout>

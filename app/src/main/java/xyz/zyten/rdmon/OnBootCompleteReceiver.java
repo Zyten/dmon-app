@@ -9,6 +9,8 @@ import android.content.Intent;
  */
 public class OnBootCompleteReceiver extends BroadcastReceiver {
 
+    private static final String TAG = "OnBootCompleteReceiver";
+
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction().equalsIgnoreCase(Intent.ACTION_BOOT_COMPLETED)) {

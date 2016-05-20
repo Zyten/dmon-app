@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
  */
 public class Validation {
 
+    private static final String TAG = "Validation";
         // Regular Expression
         // you can change the expression based on your need
         private static final String EMAIL_REGEX = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";

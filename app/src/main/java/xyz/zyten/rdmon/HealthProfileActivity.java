@@ -23,7 +23,7 @@ import java.util.List;
 
 public class HealthProfileActivity extends AppCompatActivity{
 
-    private static final String TAG = "HistoryActivity";
+    private static final String TAG = "HealthProfileActivity";
     private static ListView lv;
     private HCondition[] hconditions ;
     private ArrayAdapter<HCondition> listAdapter ;

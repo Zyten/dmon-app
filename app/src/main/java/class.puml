@@ -1,0 +1,51 @@
+@startuml
+
+abstract class AbstractList
+abstract AbstractCollection
+interface List
+interface Collection
+
+List <|-- AbstractList
+Collection <|-- AbstractCollection
+
+Collection <|- List
+AbstractCollection <|- AbstractList
+AbstractList <|-- ArrayList
+
+LoginActivity <|-- isRegistered
+FetchThingspeakTask <|-- AsyncTask
+
+class MainActivity {
+String TAG
+TextView tempTextView
+TextView humidityTextView
+TextView dustTextView
+TextView APITextView
+TextView lastupdateTextView
+TextView HeartPrecautionTextView
+TextView ExercisePrecautionTextView
+TextViewGeneralPrecautionTextView
+TextView AirDescTextView
+List<Precaution> precautions
+Integer rangeID;
+Integer isSensitive
+Integer doesExercise
+Integer API
+Boolean InternetAvailable
+GoogleApiClient mGoogleApiClient
+initLayout()
+initViews()
+initPrecaution()
+doTheAutoRefresh()
+signout()
+class FetchThingspeakTask{}
+
+
+}
+
+class LoginActivity {
+Object[] elementData
+size()
+}
+
+@enduml

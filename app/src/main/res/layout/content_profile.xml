@@ -101,7 +101,7 @@
                 android:gravity="center"
                 android:layout_gravity="left"
                 android:checked="false"
-                android:buttonTint="@color/black"
+                android:buttonTint="@color/colorAccent"
                 android:textColor="#FAFAFA"
                 android:textColorHint="#FAFAFA"/>
 

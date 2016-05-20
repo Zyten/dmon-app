@@ -27,7 +27,7 @@ import java.net.URLEncoder;
 public class UpdateProfileTask extends AsyncTask<String, Void, String> {
     private Context context;
     private CoordinatorLayout coordinatorLayout;
-    String TAG ="UpdateProfile";
+    private static final String TAG = "UpdateProfileTask";
 
     String username, gender, birthday, hometown, currResidence, googleID;
 

@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
-import android.view.View;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,13 +18,14 @@ import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+
 
 /**
  * Created by zyten on 18/5/2016.
  */
 public class NotificationService extends IntentService {
+
+    private static final String TAG = "NotificationService";
     // Must create a default constructor
     int isSensitive, doesExercise, rangeID, API;
     String heartPrecaution ="",exercisePreacaution="", generalPrecaution="";
@@ -40,17 +40,31 @@ public class NotificationService extends IntentService {
         super.onCreate(); // if you override onCreate(), make sure to call super().
         // If a Context object is needed, call getApplicationContext() here.
         Context context = getApplicationContext();
-        Log.i("NotificationService", "Service running");
+        Log.d("NotificationService", "Service running");
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
         // This describes what will happen when service is triggered
-
+        Log.e("TAG", "Notif triggered!");
+        FetchThingSpeak();
 
     }
 
-    private void FetchThingSpeak(String response){
+    private void FetchThingSpeak(){
+
+        String response = getLatestFeed();
+
+        if(response == null) {
+            Log.e(TAG, "null");
+            return;
+        }
+
+        if(response == "no_internet") {
+            Log.e(TAG, "no_internet");
+            return;
+        }
+
         try {
             //Sample response at End of File
 
