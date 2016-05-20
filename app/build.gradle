@@ -40,7 +40,7 @@ android {
         phone {
             applicationId
             "xyz.zyten.rdmon.phone"
-            versionName "1.0-phone"
+            versionName "0.27-phonee"
         }
         tablet {
             applicationId

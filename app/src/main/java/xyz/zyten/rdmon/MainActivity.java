@@ -3,7 +3,7 @@ package xyz.zyten.rdmon;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.app.AlarmManager;
-import android.app.AlertDialog;
+import android.support.v7.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -76,18 +76,18 @@ public class MainActivity extends AppCompatActivity
     public void onStart() {
         super.onStart();
         Log.e(TAG, "Started");
-
+        paused = false;
         startNotificationService();
         mGoogleApiClient.connect();
-
-        new FetchThingSpeakTask(MainActivity.this, new FetchThingSpeakTaskCompleteListener()).execute();
+        doTheAutoRefresh();
+        //new FetchThingSpeakTask(MainActivity.this, new FetchThingSpeakTaskCompleteListener()).execute();
     }
 
    @Override
     public void onPause() {
         super.onPause();  // Always call the superclass method first
-        //paused = true;
        Log.e(TAG, "Paused");
+       paused = true;
     }
 
     @Override
@@ -95,16 +95,13 @@ public class MainActivity extends AppCompatActivity
         super.onResume();
         Log.e(TAG, "Resumed");
         paused = false;
-        //simulate doing something
-        if(!paused)
-            doTheAutoRefresh();
     }
 
     @Override
     public void onStop() {
         super.onStop();  // Always call the superclass method first
         Log.e(TAG, "Stopped");
-        //paused = true;
+        paused = true;
         startNotificationService();
     }
 
@@ -112,7 +109,7 @@ public class MainActivity extends AppCompatActivity
     public void onDestroy() {
         super.onDestroy();  // Always call the superclass method first
         Log.e(TAG, "Dead");
-        //paused = true;
+        paused = true;
         startNotificationService();
     }
     private final Handler handler = new Handler();
@@ -122,10 +119,11 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void run() {
                 //new FetchThingspeakTask().execute();
-                new FetchThingSpeakTask(MainActivity.this, new FetchThingSpeakTaskCompleteListener()).execute();
+                if(paused != true)
+                    new FetchThingSpeakTask(MainActivity.this, new FetchThingSpeakTaskCompleteListener()).execute();
                 doTheAutoRefresh();
             }
-        }, 300000); //1000 ms = 1 s
+        }, 60000); //1000 ms = 1 s
     }
 
     SwipeRefreshLayout.OnRefreshListener onRefreshListener = new SwipeRefreshLayout.OnRefreshListener(){
@@ -217,7 +215,7 @@ public class MainActivity extends AppCompatActivity
         //Handle the back button
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             //Ask the user if they want to quit
-            new AlertDialog.Builder(this, R.style.AppTheme)
+            new AlertDialog.Builder(this)
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .setTitle(R.string.quit)
                     .setMessage(R.string.really_quit)
