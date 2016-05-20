@@ -79,8 +79,8 @@ public class MainActivity extends AppCompatActivity
         paused = false;
         startNotificationService();
         mGoogleApiClient.connect();
+        new FetchThingSpeakTask(MainActivity.this, new FetchThingSpeakTaskCompleteListener()).execute();
         doTheAutoRefresh();
-        //new FetchThingSpeakTask(MainActivity.this, new FetchThingSpeakTaskCompleteListener()).execute();
     }
 
    @Override
