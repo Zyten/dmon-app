@@ -42,13 +42,13 @@ public class HealthProfileActivity extends AppCompatActivity{
         Boolean newUser =  gettemppref.getBoolean("newUser", true);
         if(!newUser)
         {
-            SharedPreferences settings = getSharedPreferences("settings", Context.MODE_PRIVATE);
+            SharedPreferences myProfile = getSharedPreferences("myProfile", Context.MODE_PRIVATE);
 
-            if(settings.getInt("isSensitive", -1) == 0 || settings.getInt("isSensitive", -1) == 1)
-                isSensitive = settings.getInt("isSensitive", -1);
+            if(myProfile.getInt("isSensitive", -1) == 0 || myProfile.getInt("isSensitive", -1) == 1)
+                isSensitive = myProfile.getInt("isSensitive", -1);
 
-            if(settings.getInt("doesExercise", -1) == 0 || settings.getInt("doesExercise", -1) == 1)
-                doesExercise = settings.getInt("doesExercise", -1);
+            if(myProfile.getInt("doesExercise", -1) == 0 || myProfile.getInt("doesExercise", -1) == 1)
+                doesExercise = myProfile.getInt("doesExercise", -1);
         }
 
         Boolean stat0 = false, stat1 =false;

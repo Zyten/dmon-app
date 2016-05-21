@@ -70,6 +70,9 @@ public class MainActivity extends AppCompatActivity
                 .addApi(Plus.API)
                 .addScope(Plus.SCOPE_PLUS_LOGIN)
                 .build();
+
+        new FetchThingSpeakTask(MainActivity.this, new FetchThingSpeakTaskCompleteListener()).execute();
+        doTheAutoRefresh();
     }
 
     @Override
@@ -79,8 +82,6 @@ public class MainActivity extends AppCompatActivity
         paused = false;
         startNotificationService();
         mGoogleApiClient.connect();
-        new FetchThingSpeakTask(MainActivity.this, new FetchThingSpeakTaskCompleteListener()).execute();
-        doTheAutoRefresh();
     }
 
    @Override
@@ -119,7 +120,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void run() {
                 //new FetchThingspeakTask().execute();
-                if(paused != true)
+                if(paused!= true)
                     new FetchThingSpeakTask(MainActivity.this, new FetchThingSpeakTaskCompleteListener()).execute();
                 doTheAutoRefresh();
             }
@@ -130,8 +131,10 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onRefresh() {
             //textInfo.setText("WAIT: doing something");
-            new FetchThingSpeakTask(MainActivity.this, new FetchThingSpeakTaskCompleteListener()).execute();
-
+            if(InternetAvailable)
+                new FetchThingSpeakTask(MainActivity.this, new FetchThingSpeakTaskCompleteListener()).execute();
+            else
+                Toast.makeText(MainActivity.this, "No Internet Connection", Toast.LENGTH_SHORT).show();
 
             //simulate doing something
             new Handler().postDelayed(new Runnable() {
@@ -290,15 +293,16 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void signout(){
-        if (mGoogleApiClient.isConnected()) {
-            Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
-            mGoogleApiClient.disconnect();
-            SharedPreferences settemppref = getSharedPreferences(LoginActivity.TEMP, Context.MODE_PRIVATE);
-            SharedPreferences.Editor tempEditor = settemppref.edit();
-            tempEditor.putBoolean("logged_in", false);
-            tempEditor.commit();
-            //mGoogleApiClient.connect();  //may not be needed*/
-        }
+        if(InternetAvailable) {
+            if (mGoogleApiClient.isConnected()) {
+                Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
+                mGoogleApiClient.disconnect();
+                SharedPreferences settemppref = getSharedPreferences(LoginActivity.TEMP, Context.MODE_PRIVATE);
+                SharedPreferences.Editor tempEditor = settemppref.edit();
+                tempEditor.putBoolean("logged_in", false);
+                tempEditor.commit();
+                //mGoogleApiClient.connect();  //may not be needed*/
+            }
 
             /*Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
             Plus.AccountApi.revokeAccessAndDisconnect(mGoogleApiClient)
@@ -310,10 +314,14 @@ public class MainActivity extends AppCompatActivity
                         }
 
                     });*/
-        Intent login = new Intent(MainActivity.this, LoginActivity.class);
-        login.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-        MainActivity.this.startActivity(login);
-        MainActivity.this.finish();
+            Intent login = new Intent(MainActivity.this, LoginActivity.class);
+            login.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            MainActivity.this.startActivity(login);
+            MainActivity.this.finish();
+        }
+        else {
+            Toast.makeText(MainActivity.this, "No Internet Connection", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void startNotificationService(){
@@ -397,17 +405,22 @@ public class MainActivity extends AppCompatActivity
             rangeID = 2;
         else
             rangeID = -1;
+
+        Log.e(TAG, "Range: " + String.valueOf(rangeID));
+
     }
 
     private void setPrecaution(View HeartPrecaution, View ExercisePrecaution)
     {
+        Log.e(TAG, "isSensitive: " + String.valueOf(isSensitive));
+        Log.e(TAG, "doesExercise: " + String.valueOf(doesExercise));
         if(rangeID == 0) { //Good
             if (isSensitive == 1) {
-                HeartPrecautionTextView.setText(precautions.get(0).getPrecaution());
+                HeartPrecautionTextView.setText(precautions.get(1).getPrecaution());
                 HeartPrecaution.setVisibility(View.VISIBLE);
             }
             if (doesExercise == 1){
-                ExercisePrecautionTextView.setText(precautions.get(1).getPrecaution());
+                ExercisePrecautionTextView.setText(precautions.get(2).getPrecaution());
                 ExercisePrecaution.setVisibility(View.VISIBLE);}
             if (isSensitive != 1 && doesExercise !=1){
                 HeartPrecautionTextView.setText("");
@@ -415,15 +428,15 @@ public class MainActivity extends AppCompatActivity
                 HeartPrecaution.setVisibility(View.GONE);
                 ExercisePrecaution.setVisibility(View.GONE);
             }
-            GeneralPrecautionTextView.setText(precautions.get(2).getPrecaution());
+            GeneralPrecautionTextView.setText(precautions.get(0).getPrecaution());
             AirDescTextView.setText("EXCELLENT AIR QUALITY");
         }
         else if(rangeID == 1) { //Moderate
             if (isSensitive == 1){
-                HeartPrecautionTextView.setText(precautions.get(3).getPrecaution());
+                HeartPrecautionTextView.setText(precautions.get(4).getPrecaution());
                 HeartPrecaution.setVisibility(View.VISIBLE);}
             if (doesExercise == 1) {
-                ExercisePrecautionTextView.setText(precautions.get(4).getPrecaution());
+                ExercisePrecautionTextView.setText(precautions.get(5).getPrecaution());
                 ExercisePrecaution.setVisibility(View.VISIBLE);}
             if (isSensitive != 1 && doesExercise !=1){
                 HeartPrecautionTextView.setText("");
@@ -431,16 +444,16 @@ public class MainActivity extends AppCompatActivity
                 HeartPrecaution.setVisibility(View.GONE);
                 ExercisePrecaution.setVisibility(View.GONE);
             }
-            GeneralPrecautionTextView.setText(precautions.get(5).getPrecaution());
+            GeneralPrecautionTextView.setText(precautions.get(3).getPrecaution());
             AirDescTextView.setText("MODERATE AIR QUALITY");
         }
         else if(rangeID == 2) { //Unhealthy
             if (isSensitive == 1) {
-                HeartPrecautionTextView.setText(precautions.get(6).getPrecaution());
-                HeartPrecautionTextView.setVisibility(View.VISIBLE);
+                HeartPrecautionTextView.setText(precautions.get(7).getPrecaution());
+                HeartPrecaution.setVisibility(View.VISIBLE);
             }
             if (doesExercise == 1) {
-                ExercisePrecautionTextView.setText(precautions.get(7).getPrecaution());
+                ExercisePrecautionTextView.setText(precautions.get(8).getPrecaution());
                 ExercisePrecaution.setVisibility(View.VISIBLE);}
             if (isSensitive != 1 && doesExercise !=1){
                 HeartPrecautionTextView.setText("");
@@ -448,7 +461,7 @@ public class MainActivity extends AppCompatActivity
                 HeartPrecaution.setVisibility(View.GONE);
                 ExercisePrecaution.setVisibility(View.GONE);
             }
-            GeneralPrecautionTextView.setText(precautions.get(8).getPrecaution());
+            GeneralPrecautionTextView.setText(precautions.get(6).getPrecaution());
             AirDescTextView.setText("UNHEALTHY AIR QUALITY");
         }
         else

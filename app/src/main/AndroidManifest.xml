@@ -11,7 +11,7 @@
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="Realtime D-MON"
+        android:label="Realtime DMON"
         android:supportsRtl="true"
         android:theme="@style/AppTheme" >
 
@@ -54,7 +54,7 @@
 
         <activity
             android:name=".LoginActivity"
-            android:label="Realtime D-MON"
+            android:label="Realtime DMON"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
@@ -62,27 +62,27 @@
         <activity
             android:name=".MainActivity"
             android:noHistory="false"
-            android:label="Realtime D-MON"
+            android:label="Realtime DMON"
             android:theme="@style/AppTheme.NoActionBar" >
         </activity>
         
         <activity
             android:name=".ProfileActivity"
-            android:label="Realtime D-MON"
+            android:label="Realtime DMON"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
 
         <activity
             android:name=".HealthProfileActivity"
-            android:label="Realtime D-MON"
+            android:label="Realtime DMON"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
 
         <activity
             android:name=".ApiGuidelineActivity"
-            android:label="Realtime D-MON"
+            android:label="Realtime DMON"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
@@ -90,14 +90,14 @@
 
         <activity
             android:name=".HistoryActivity"
-            android:label="Realtime D-MON"
+            android:label="Realtime DMON"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
 
         <activity
             android:name=".SettingsActivity"
-            android:label="Realtime D-MON"
+            android:label="Realtime DMON"
             android:screenOrientation="portrait"
             android:theme="@style/PreferenceTheme">
         </activity>
@@ -105,7 +105,7 @@
         <activity
             android:name=".LauncherActivity"
             android:screenOrientation="portrait"
-            android:label="Realtime D-MON"
+            android:label="Realtime DMON"
             android:theme="@android:style/Theme.NoDisplay">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

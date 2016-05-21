@@ -60,7 +60,7 @@ public class ApiGuidelineActivity extends AppCompatActivity {
     private void initLayout(){
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("API Table");
+        getSupportActionBar().setTitle("API Guideline");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
     }

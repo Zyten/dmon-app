@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -48,6 +49,7 @@ public class NotificationService extends IntentService {
         // This describes what will happen when service is triggered
         Log.e("TAG", "Notif triggered!");
         FetchThingSpeak();
+
 
     }
 
@@ -172,17 +174,18 @@ public class NotificationService extends IntentService {
                 heartPrecaution ="There is a slight chance of respiratory distress in people with health sensitivities. Please prepare accordingly.";
                 pushNotification("Unhealthy Air Quality", heartPrecaution);
             }
-            if (doesExercise == 1) {
+            else if (doesExercise == 1) {
                 exercisePreacaution="Our recommendation: search for a cleaner area for a physical outdoor activity.";
                 pushNotification("Unhealthy Air Quality", exercisePreacaution);
             }
-            if (isSensitive != 1 && doesExercise !=1){
-                generalPrecaution="We\\'re not going to tell you not to go outside but you should continue tracking the air quality around you.";
+            //if (isSensitive != 1 && doesExercise !=1){
+            else {
+                generalPrecaution="You can still go outside but you should continue tracking the air quality around you.";
                 pushNotification("Unhealthy Air Quality", generalPrecaution);
             }
         }
         else
-            Log.d("Tag", "Invalid rangeID");
+            Log.e("Tag", "API Range < 150");
     }
 
     private void pushNotification(String title, String desc){
@@ -195,22 +198,23 @@ public class NotificationService extends IntentService {
 
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         mPendingIntent = PendingIntent.getActivity(getApplicationContext(), 1, intent, 0);
-        Notification.Builder mBuilder = new Notification.Builder(getApplicationContext());
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext());
 
         mBuilder.setDefaults(Notification.DEFAULT_SOUND|Notification.DEFAULT_LIGHTS|Notification.DEFAULT_VIBRATE);
         mBuilder.setAutoCancel(true);
         mBuilder.setContentTitle(title);
         mBuilder.setTicker(title);
-        mBuilder.setContentText(desc);
+        //mBuilder.setSubText("Be careful");
+        mBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText(desc));
+        //mBuilder.setContentText(desc);
         mBuilder.setSmallIcon(R.drawable.ic_launcher_big);
         mBuilder.setContentIntent(mPendingIntent);
         mBuilder.setOngoing(false);
 
         //API level 16
-            /*
-            mBuilder.setSubText("This is short description of android app notification");
-            mBuilder.setNumber(150);
-            mBuilder.build();*/
+
+        /*mBuilder.setNumber(150);
+        mBuilder.build();*/
         mNotification = mBuilder.getNotification();
         notificationManager.notify(11, mNotification);
     }

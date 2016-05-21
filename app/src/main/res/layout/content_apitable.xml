@@ -25,7 +25,7 @@
         android:textColor="#ffffff"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:text="API computed based on 1 hour average of PM10 concentration levels as per Malaysian Air Quality Guideline."
+        android:text="Note: API displayed is based on hourly average of dust concentration levels."
         android:layout_below="@+id/list_view_apitable"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />

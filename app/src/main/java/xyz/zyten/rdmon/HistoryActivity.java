@@ -24,7 +24,7 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
     private static final String TAG = "HistoryActivity";
     private WebView mWebView = null;
     private LinearLayout mlLayoutRequestError = null;
-    private Handler mhErrorLayoutHide; //117109 ?results
+    private Handler mhErrorLayoutHide; //117109 1?results --> rdmon_api channel - updated by cronjob
     private final String URL = "https://api.thingspeak.com/channels/108012/charts/4?&results=15&dynamic=&width=320&title=API History";
     private boolean mbErrorOccured = false;
     private boolean mbReloadPressed = false;
@@ -37,7 +37,7 @@ public class HistoryActivity extends AppCompatActivity implements View.OnClickLi
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("API History");
+        getSupportActionBar().setTitle("Historical Data");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 

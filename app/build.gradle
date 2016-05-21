@@ -7,7 +7,7 @@ android {
 
     defaultConfig {
         applicationId "xyz.zyten.rdmon"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -40,12 +40,12 @@ android {
         phone {
             applicationId
             "xyz.zyten.rdmon.phone"
-            versionName "0.27-phonee"
+            versionName "0.30"
         }
         tablet {
             applicationId
             "xyz.zyten.rdmon.tablet"
-            versionName "1.0-tablet"
+            versionName "0.0"
         }
     }
 

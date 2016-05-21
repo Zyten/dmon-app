@@ -21,22 +21,16 @@
         android:visibility="gone"/>
 
     <Button
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/btnlogin"
-        android:text="Login with G+"
+        android:text="Sign in with Google"
         android:textColor="#FFF"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textStyle="bold"
-        android:textSize="30dp"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp"
-        android:paddingRight="15dp"
-        android:paddingLeft="15dp"
-
-        android:background="#00796B"
-        android:layout_marginBottom="170dp"
-        android:layout_alignParentBottom="true"
+        android:theme="@style/MyButton"
+        android:layout_marginTop="118dp"
+        android:layout_below="@+id/appDesc"
         android:layout_centerHorizontal="true" />
 
     <TextView
@@ -44,17 +38,29 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/logo"
-        android:layout_weight="1"
         android:gravity="center"
-        android:text="D-MON"
+        android:text="R-DMON"
         android:textColor="@color/material_deep_teal_500"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textStyle="bold"
         android:textSize="30dp"
-        android:layout_marginBottom="79dp"
-        android:layout_above="@+id/btnlogin"
-        android:layout_alignLeft="@+id/btnlogin"
-        android:layout_alignStart="@+id/btnlogin" />
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="62dp" />
+
+    <TextView
+        android:id="@+id/appDesc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Monitoring air quality made easy"
+        android:textColor="#FFFFFF"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textStyle="bold"
+        android:textSize="20dp"
+        android:layout_marginTop="28dp"
+        android:layout_below="@+id/appTitle"
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>
 

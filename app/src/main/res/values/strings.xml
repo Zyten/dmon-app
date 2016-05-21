@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Realtime D-MON</string>
+    <string name="app_name">Realtime DMON</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -31,7 +31,6 @@
 
     <string name="server_client_id">433386545755-72rmmcpjl3katmsd2cg4oj75iru4batu.apps.googleusercontent.com</string>
 
-
     <string name="weather_sunny">&#xf00d;</string>
     <string name="weather_clear_night">&#xf02e;</string>
 
@@ -41,4 +40,7 @@
     <string name="unit_humidity">&#160;%</string>
     <string name="unit_temp">&#160;\u2103</string>
     <string name="unit_dust">&#160;μg/m\u00B3</string>
+
+    <string name="app_version">v0.30</string>
+    <string name="about_me">Realtime DMON v0.30\nDeveloped by Ruban Selvarajah</string>
 </resources>

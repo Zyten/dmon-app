@@ -9,4 +9,12 @@
             android:textColor="#FFFFFF"
             android:summary="Notify precautions when air quality is unhealthy" />
     </PreferenceCategory>
+    <PreferenceCategory android:title="About"
+        android:textColor="#FFFFFF">
+        <Preference
+            android:key="about"
+            android:defaultValue="false"
+            android:textColor="#FFFFFF"
+            android:summary="@string/about_me" />
+    </PreferenceCategory>
 </PreferenceScreen>
